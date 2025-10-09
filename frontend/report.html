@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Issue - SnapReport</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>SnapReport</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="report.html">Report Issue</a>
+            <a href="dashboard.html">Dashboard</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Report an Issue</h2>
+        <form id="issueForm">
+            <input type="text" id="title" placeholder="Title" required><br><br>
+            <textarea id="description" placeholder="Description" required></textarea><br><br>
+            <input type="text" id="category" placeholder="Category (e.g., Road, Garbage)" required><br><br>
+            <input type="text" id="location" placeholder="Location" required><br><br>
+            <button type="submit">Submit Issue</button>
+        </form>
+        <p id="message"></p>
+    </main>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
