@@ -3,31 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Issue - SnapReport</title>
-    <link rel="stylesheet" href="css/style.css">
+        <title>Report Issue - SnapReport</title>
+        <link rel="stylesheet" href="css/style.css">
+        <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
+        <!-- Leaflet.js for OpenStreetMap -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-sA+e2tu6p+U6GkG6lLr3QbQ+5rF2zF+5Q+6p9t9z1kA=" crossorigin=""/>
+        <script>
+            // Simple login check: require 'isLoggedIn' in localStorage
+            if (!localStorage.getItem('isLoggedIn')) {
+                window.location.href = 'login.html';
+            }
+        </script>
 </head>
+
 <body>
+    <!-- FLOATING BUBBLE BACKGROUND -->
+    <div class="bubble-bg">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <!-- HEADER -->
     <header>
-        <h1>SnapReport</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="report.html">Report Issue</a>
-            <a href="dashboard.html">Dashboard</a>
-        </nav>
+        <div class="container">
+            <div id="branding">
+                <img src="img/logo.png" alt="SnapReport Logo" class="logo">
+                <h1>SnapReport</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="signup.html">Sign Up</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
     <main>
-        <h2>Report an Issue</h2>
-        <form id="issueForm">
-            <input type="text" id="title" placeholder="Title" required><br><br>
-            <textarea id="description" placeholder="Description" required></textarea><br><br>
-            <input type="text" id="category" placeholder="Category (e.g., Road, Garbage)" required><br><br>
-            <input type="text" id="location" placeholder="Location" required><br><br>
-            <button type="submit">Submit Issue</button>
-        </form>
-        <p id="message"></p>
+        <div class="report-container landscape">
+            <h2><i class='bx bx-camera'></i> Report an Issue</h2>
+            <p class="report-description">Submit potholes, garbage, streetlight issues, and more with just a few clicks.</p>
+            <div class="report-flex">
+                <form id="issueForm">
+                    <input type="text" id="title" placeholder="Title" required>
+                    <textarea id="description" placeholder="Description" required></textarea>
+                    <div class="form-group">
+                        <select id="department" required>
+                            <option value="" disabled selected>Select Department</option>
+                            <option value="PWD">PWD</option>
+                            <option value="Electricity">Electricity</option>
+                            <option value="Water">Water</option>
+                            <option value="Traffic">Traffic</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="issueType" required disabled>
+                            <option value="" disabled selected>Select Issue</option>
+                        </select>
+                    </div>
+                    <input type="hidden" id="location" name="location" required>
+                    <input type="hidden" id="imageData" name="imageData">
+                    <button type="submit" class="btn submit-issue-btn">Submit Issue</button>
+                    <p id="message"></p>
+                </form>
+                                <div class="camera-location-group">
+                                    <div class="photo-block">
+                                        <canvas id="canvas" class="photo-canvas"></canvas>
+                                        <video id="video" class="photo-video" autoplay></video>
+                                        <img id="photoPreview" class="photo-preview" alt="Photo Preview">
+                                        <button type="button" id="captureBtn" class="btn">Take Photo</button>
+                                    </div>
+                                    <div class="location-section">
+                                        <button type="button" id="getLocationBtn" class="btn location-btn" title="Use my location">
+                                            <i class='bx bx-current-location'></i> Use Current Location
+                                        </button>
+                                        <div class="location-info">
+                                            <span id="locationDisplay" class="location-display">No location selected</span>
+                                            <div id="addressDisplay" class="address-display"></div>
+                                            <div id="miniMap" class="mini-map"></div>
+                                        </div>
+                                    </div>
+                                </div>
+            </div>
+        </div>
     </main>
 
+    <!-- FOOTER -->
+    <footer>
+        <p>SnapReport &copy; 2025 | Designed by Your Team</p>
+    </footer>
+
+    <!-- Leaflet.js for OpenStreetMap -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1jRVv6GQ6k6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q=" crossorigin=""></script>
     <script src="js/main.js"></script>
 </body>
 </html>

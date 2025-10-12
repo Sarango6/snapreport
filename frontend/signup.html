@@ -8,8 +8,14 @@
 </head>
 <body>
 
-    <!-- ANIMATED BACKGROUND -->
-    <div class="animated-bg"></div>
+    <!-- FLOATING BUBBLE BACKGROUND -->
+    <div class="bubble-bg">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
 
     <!-- HEADER -->
     <header>
@@ -51,12 +57,42 @@
 
     <!-- COPY PASSWORD FIX -->
     <script>
+        // Password copy fix
         const passwordFields = [document.getElementById('password'), document.getElementById('confirmPassword')];
         passwordFields.forEach(field => {
             field.addEventListener('copy', (e) => {
                 e.preventDefault();
                 e.clipboardData.setData('text/plain', field.value);
             });
+        });
+        // Signup form logic
+        const signupForm = document.getElementById('signupForm');
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            if (password !== confirmPassword) {
+                alert('Passwords do not match.');
+                return;
+            }
+            try {
+                const res = await fetch('/api/users/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('Signup successful! Please login.');
+                    window.location.href = 'login.html';
+                } else {
+                    alert(data.message || 'Signup failed.');
+                }
+            } catch (err) {
+                alert('Server error.');
+            }
         });
     </script>
 

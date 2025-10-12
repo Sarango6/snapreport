@@ -1,3 +1,363 @@
+/* DASHBOARD STYLES */
+.dashboard-container {
+    max-width: 950px;
+    margin: 40px auto 30px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0px 6px 18px rgba(0,0,0,0.07);
+    padding: 32px 24px 32px 24px;
+}
+.dashboard-title {
+    color: #0096FF;
+    font-size: 2rem;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+}
+.issues-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 28px;
+}
+.issue-card {
+    background: #f4f8fc;
+    border-radius: 10px;
+    box-shadow: 0px 2px 8px rgba(0,150,255,0.07);
+    padding: 22px 18px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 180px;
+    position: relative;
+    border-left: 6px solid #0096FF;
+}
+.issue-card h3 {
+    margin: 0 0 6px 0;
+    color: #0096FF;
+    font-size: 1.2em;
+    font-weight: 700;
+}
+.issue-card p {
+    margin: 0 0 4px 0;
+    color: #222;
+    font-size: 1em;
+}
+.issue-card .status {
+    font-weight: bold;
+    color: #fff;
+    background: #0096FF;
+    border-radius: 6px;
+    padding: 2px 12px;
+    font-size: 0.95em;
+    display: inline-block;
+    margin-top: 8px;
+}
+.issue-card .date {
+    color: #888;
+    font-size: 0.95em;
+    margin-top: 2px;
+}
+@media (max-width: 600px) {
+    .dashboard-container {
+        padding: 10px 2vw 18px 2vw;
+    }
+    .dashboard-title {
+        font-size: 1.2rem;
+        margin-bottom: 18px;
+    }
+    .issues-list {
+        gap: 14px;
+    }
+    .issue-card {
+        padding: 12px 6px 10px 10px;
+    }
+}
+.submit-issue-btn {
+    margin-top: 24px;
+    margin-bottom: 0;
+    width: 100%;
+    font-size: 1.1em;
+}
+.camera-location-group #message {
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+}
+.camera-location-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.photo-block {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f4f8fc;
+    border-radius: 10px;
+    padding: 10px 0 18px 0;
+    box-shadow: 0px 2px 8px rgba(0,150,255,0.07);
+    margin-bottom: 18px;
+}
+.photo-block .photo-canvas,
+.photo-block .photo-video,
+.photo-block .photo-preview {
+    width: 100%;
+    max-width: 220px;
+    border-radius: 8px;
+    margin-top: 0;
+    margin-bottom: 0;
+    display: none;
+}
+.photo-block .photo-preview {
+    display: none;
+    margin-top: 10px;
+}
+.photo-block .photo-video {
+    background: #222;
+    margin-top: 0;
+}
+.photo-block .btn {
+    margin-top: 10px;
+    width: 100%;
+}
+.photo-block .show {
+    display: block !important;
+}
+.camera-section video {
+    display: none;
+    width: 100%;
+    max-width: 220px;
+    border-radius: 8px;
+    background: #222;
+    margin-bottom: 10px;
+}
+.location-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 10px;
+    background: #0096FF;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0 12px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 16px;
+    justify-content: center;
+    transition: background 0.2s;
+}
+.location-btn:hover {
+    background: #004f87;
+}
+.location-display {
+    display: block;
+    margin-top: 4px;
+    color: #555;
+    font-size: 15px;
+    min-height: 20px;
+    word-break: break-all;
+}
+.photo-canvas {
+    display: none;
+    width: 100%;
+    max-width: 220px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+.photo-preview {
+    display: none;
+    margin-top: 10px;
+    max-width: 100%;
+    border-radius: 8px;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+.report-container select {
+    width: 95%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    margin-bottom: 0;
+}
+.report-container select:focus {
+    border-color: #0096FF;
+    outline: none;
+}
+/* LANDSCAPE REPORT FORM LAYOUT */
+.report-container.landscape {
+    max-width: 900px;
+    padding: 40px 30px 30px 30px;
+}
+/* Responsive flex for report form and camera/location */
+.report-flex {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+.report-container form {
+    flex: 1 1 340px;
+    max-width: 380px;
+    text-align: left;
+    min-width: 0;
+}
+.camera-location-group {
+    flex: 1 1 260px;
+    max-width: 320px;
+    min-width: 0;
+}
+.photo-block, .location-section {
+    width: 100%;
+    box-sizing: border-box;
+}
+.camera-section video {
+    width: 100%;
+    max-width: 220px;
+    border-radius: 8px;
+    background: #222;
+    margin-bottom: 10px;
+}
+.camera-section button {
+    width: 100%;
+    margin-top: 8px;
+}
+.camera-section img {
+    margin-top: 10px;
+}
+.location-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.location-row input {
+    flex: 1 1 auto;
+    margin-bottom: 0;
+}
+.location-row button {
+    background: #0096FF;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0 12px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 15px;
+    transition: background 0.2s;
+}
+.location-row button:hover {
+    background: #004f87;
+}
+@media (max-width: 900px) {
+    .report-container.landscape {
+        max-width: 98vw;
+        padding: 20px 5px;
+    }
+    .report-flex {
+        flex-direction: column;
+        gap: 24px;
+        align-items: stretch;
+    }
+    .report-container form, .camera-location-group {
+        max-width: 100%;
+        width: 100%;
+    }
+    .photo-block, .location-section {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+@media (max-width: 600px) {
+    .report-container.landscape {
+        padding: 10px 0 20px 0;
+        margin: 20px 0 10px 0;
+    }
+    .report-flex {
+        gap: 12px;
+    }
+    .report-container h2 {
+        font-size: 20px;
+    }
+    .photo-block .photo-canvas,
+    .photo-block .photo-video,
+    .photo-block .photo-preview {
+        max-width: 100vw;
+        width: 100%;
+    }
+    .photo-block {
+        padding: 6px 0 10px 0;
+    }
+    .location-section {
+        padding: 8px 2px 8px 2px;
+    }
+    .report-container form {
+        padding: 0 8px;
+    }
+}
+/* REPORT FORM CARD */
+.report-container {
+    max-width: 450px;
+    margin: 60px auto 40px auto;
+    background-color: white;
+    padding: 40px 30px 30px 30px;
+    border-radius: 10px;
+    box-shadow: 0px 6px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.report-container h2 {
+    margin-bottom: 10px;
+    color: #0096FF;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.report-description {
+    color: #555;
+    margin-bottom: 25px;
+    font-size: 16px;
+}
+
+.report-container input,
+.report-container textarea {
+    width: 90%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    resize: none;
+}
+
+.report-container input:focus,
+.report-container textarea:focus {
+    border-color: #0096FF;
+    outline: none;
+}
+
+.report-container .btn {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.report-container #message {
+    margin-top: 10px;
+    font-weight: bold;
+}
 /* GLOBAL STYLES */
 body {
     font-family: Arial, sans-serif;
@@ -119,36 +479,37 @@ header nav ul li a:hover {
 /* BOXES / FEATURES */
 #boxes {
     display: flex;
-    justify-content: center;  /* center boxes as a group */
-    margin: 50px 0 70px 0;    /* extra bottom margin to prevent cutting */
-    gap: 40px;                /* space between boxes */
-    flex-wrap: wrap;           /* wrap on smaller screens */
-    overflow: visible;         /* allow boxes to move on hover */
+    justify-content: center;      /* centers all boxes horizontally */
+    align-items: flex-start;      /* keeps all boxes top-aligned */
+    flex-wrap: nowrap;            /* keeps them in one row */
+    gap: 40px;                    /* equal spacing between boxes */
+    margin: 60px auto;            /* centers section itself */
+    max-width: 950px;            /* keeps boxes within a centered frame */
+    overflow: visible;
 }
 
 #boxes .box {
     background-color: #0096FF;
     color: white;
     text-align: center;
-    padding: 25px;
+    padding: 30px 20px;
     border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.15);
-    transition: transform 0.3s;
-    width: 300px;           /* fixed same width for all boxes */
-    height: 200px;          /* fixed same height for all boxes */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s, background-color 0.3s;
+    width: 300px;                 /* consistent box size */
+    height: 200px;
 }
 
 #boxes .box:hover {
-    transform: translateY(-10px); /* box moves up without being cut */
+    transform: translateY(-10px);
     background-color: #004f87;
-    text-transform: capitalize;
 }
 
 #boxes .box i {
-    font-size: 60px;        /* increase icon size */
-    margin-bottom: 20px;    /* space below icon */
-    color: white;           /* ensure icon is visible */
-    display: block;         /* makes sure margin works */
+    font-size: 60px;
+    margin-bottom: 15px;
+    display: block;
+    color: white;
 }
 
 
@@ -229,33 +590,143 @@ footer {
     text-decoration: underline;
 }
 
-/* ANIMATED BACKGROUND */
-.animated-bg {
+/* ========================= */
+/* ANIMATED BACKGROUND (BUBBLES EFFECT) */
+/* ========================= */
+
+.bubble-bg {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(-45deg, #0096FF, #00CFFF, #0096FF, #00CFFF);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
-    z-index: -1; /* behind everything */
+    overflow: hidden;
+    z-index: -1; /* Keep behind everything */
+    background: linear-gradient(180deg, #eaf6ff, #ffffff);
 }
 
-@keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-/* Keep signup form on top */
-.signup-container {
-    position: relative;
-    z-index: 1;
-}
-/* Keep signup form on top */
-.signup-container {
-    position: relative;
-    z-index: 1;
+.bubble {
+    position: absolute;
+    bottom: -150px;
+    background: rgba(0, 150, 255, 0.25);
+    border-radius: 50%;
+    animation: rise 15s infinite ease-in;
 }
 
-/* BUTTON already defined as .button_1 in main CSS */
+/* Random sizes and positions for variation */
+.bubble:nth-child(1) {
+    width: 60px;
+    height: 60px;
+    left: 10%;
+    animation-duration: 18s;
+    animation-delay: 0s;
+}
+.bubble:nth-child(2) {
+    width: 40px;
+    height: 40px;
+    left: 25%;
+    animation-duration: 12s;
+    animation-delay: 2s;
+}
+.bubble:nth-child(3) {
+    width: 80px;
+    height: 80px;
+    left: 45%;
+    animation-duration: 20s;
+    animation-delay: 4s;
+}
+.bubble:nth-child(4) {
+    width: 30px;
+    height: 30px;
+    left: 65%;
+    animation-duration: 10s;
+    animation-delay: 1s;
+}
+.bubble:nth-child(5) {
+    width: 90px;
+    height: 90px;
+    left: 80%;
+    animation-duration: 25s;
+    animation-delay: 3s;
+}
+
+@keyframes rise {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-1200px) scale(1.3);
+        opacity: 0;
+    }
+}
+
+/* ========================= */
+/* LOGIN FORM STYLING */
+/* ========================= */
+
+.login-container {
+    max-width: 450px;
+    margin: 50px auto;
+    background-color: white;
+    padding: 40px 30px;
+    border-radius: 10px;
+    box-shadow: 0px 6px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.login-container h2 {
+    margin-bottom: 25px;
+    color: #0096FF;
+}
+
+.login-container input {
+    width: 90%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.login-container input:focus {
+    border-color: #0096FF;
+    outline: none;
+}
+
+.login-container .button_1 {
+    background-color: #0096FF;
+    border: 0;
+    color: white;
+    height: 45px;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 0 30px;
+    cursor: pointer;
+    text-transform: uppercase;
+    display: inline-block;
+    line-height: 45px;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.login-container .button_1:hover {
+    background-color: #004f87;
+}
+
+.login-container a {
+    color: #0096FF;
+    text-decoration: none;
+}
+
+.login-container a:hover {
+    text-decoration: underline;
+}
+
+#loginMessage {
+    margin-top: 10px;
+    font-weight: bold;
+}

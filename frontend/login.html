@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SnapReport</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- FLOATING BUBBLE BACKGROUND -->
+    <div class="bubble-bg">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="container">
+            <div id="branding">
+                <img src="img/logo.png" alt="SnapReport Logo" class="logo">
+                <h1>SnapReport</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="signup.html">Sign Up</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- LOGIN FORM -->
+    <section id="login">
+        <div class="container signup-container">
+            <h2>Login to Your Account</h2>
+            <form id="loginForm">
+                <input type="email" id="email" placeholder="Email" required><br><br>
+                <input type="password" id="password" placeholder="Password" required><br><br>
+                <button type="submit" class="button_1">Login</button>
+            </form>
+            <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
+            <p id="loginMessage" style="color:red; margin-top:10px;"></p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>SnapReport &copy; 2025 | Designed by Your Team</p>
+    </footer>
+
+    <!-- LOGIN JS -->
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const loginMessage = document.getElementById('loginMessage');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loginData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+            try {
+                const res = await fetch('/api/users/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(loginData)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    loginMessage.style.color = 'green';
+                    loginMessage.textContent = "Login successful!";
+                    localStorage.setItem('isLoggedIn', 'true');
+                    setTimeout(() => {
+                        window.location.href = "dashboard.html";
+                    }, 1000);
+                } else {
+                    loginMessage.style.color = 'red';
+                    loginMessage.textContent = data.message || "Login failed.";
+                }
+            } catch (err) {
+                loginMessage.style.color = 'red';
+                loginMessage.textContent = "Server error.";
+            }
+        });
+    </script>
+
+</body>
+</html>
