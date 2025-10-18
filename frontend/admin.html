@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SnapReport Admin</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard</h1>
+    <nav><a href="/">Home</a></nav>
+  </header>
+  <main>
+    <section>
+      <canvas id="byCategoryChart" width="600" height="300"></canvas>
+    </section>
+    <section>
+      <canvas id="statusChart" width="600" height="300"></canvas>
+    </section>
+    <section>
+      <button id="exportCsv">Export CSV</button>
+      <button id="exportPdf">Export PDF</button>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -27,9 +27,7 @@
             <nav>
                 <ul>
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="login.html">Login</a></li>
-                    <li><a href="signup.html">Sign Up</a></li>
+                    
                 </ul>
             </nav>
         </div>
@@ -51,44 +49,90 @@
 
     <!-- FOOTER -->
     <footer>
-        <p>SnapReport &copy; 2025 | Designed by Your Team</p>
+        <p>SnapReport &copy; 2025 | Designed Team Straw Hat</p>
     </footer>
 
     <!-- LOGIN JS -->
     <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Hide/show login button and profile/logout based on login state
+        function updateNavButtons() {
+            const nav = document.querySelector('nav ul');
+            if (!nav) return;
+
+            // Find login <li> by text content
+            const loginLi = Array.from(nav.children).find(li => li.textContent.trim() === 'LOGIN');
+            const profileBtn = document.getElementById("profileBtn");
+            const logoutBtn = document.getElementById("logoutBtn");
+
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                if (loginLi) loginLi.style.display = 'none';
+                if (profileBtn) profileBtn.style.display = 'inline-block';
+                if (logoutBtn) logoutBtn.style.display = 'inline-block';
+            } else {
+                if (loginLi) loginLi.style.display = 'inline-block';
+                if (profileBtn) profileBtn.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+            }
+        }
+
+        updateNavButtons();
+
+        // Logout button functionality
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", function() {
+                localStorage.removeItem("isLoggedIn");
+                updateNavButtons();
+                window.location.href = "index.html";
+            });
+        }
+
+        // Login form submission
         const loginForm = document.getElementById('loginForm');
         const loginMessage = document.getElementById('loginMessage');
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const loginData = {
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value
-            };
-            try {
-                const res = await fetch('/api/users/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(loginData)
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    loginMessage.style.color = 'green';
-                    loginMessage.textContent = "Login successful!";
-                    localStorage.setItem('isLoggedIn', 'true');
-                    setTimeout(() => {
-                        window.location.href = "dashboard.html";
-                    }, 1000);
-                } else {
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const loginData = {
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value
+                };
+                try {
+                    const res = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(loginData)
+                    });
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        localStorage.setItem("isLoggedIn", "true");
+                        if (data.token) localStorage.setItem("token", data.token);
+                        if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
+                        loginMessage.style.color = 'green';
+                        loginMessage.textContent = "Login successful!";
+
+                        // Update nav buttons
+                        updateNavButtons();
+
+                        setTimeout(() => {
+                            window.location.href = "index.html";
+                        }, 1000);
+                    } else {
+                        loginMessage.style.color = 'red';
+                        loginMessage.textContent = data.message || "Login failed.";
+                    }
+                } catch (err) {
                     loginMessage.style.color = 'red';
-                    loginMessage.textContent = data.message || "Login failed.";
+                    loginMessage.textContent = "Server error.";
                 }
-            } catch (err) {
-                loginMessage.style.color = 'red';
-                loginMessage.textContent = "Server error.";
-            }
-        });
+            });
+        }
+    });
     </script>
+
 
 </body>
 </html>

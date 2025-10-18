@@ -6,8 +6,9 @@ const issueSchema = new mongoose.Schema({
     category: { type: String, required: true },
     location: { type: String, required: true }, // coordinates
     address: { type: String }, // human-readable address
-    imageURL: { type: String },       // Optional: link to image
+    images: [{ type: String }],       // Array of image URLs
     status: { type: String, default: "Pending" },
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     createdAt: { type: Date, default: Date.now }
 });
 

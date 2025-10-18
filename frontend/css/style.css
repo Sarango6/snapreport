@@ -1,3 +1,163 @@
+/* Header Logout Button Theme Match */
+#logoutHeaderBtn button {
+    background-color: #0096FF;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 24px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0px 2px 8px rgba(0,150,255,0.07);
+    text-transform: uppercase;
+    margin-left: 10px;
+}
+#logoutHeaderBtn button:hover {
+    background-color: #004f87;
+    color: #fff;
+}
+/* PROFILE MENU DROPDOWN FIX */
+.profile-menu {
+    position: relative;
+    display: inline-block;
+    z-index: 2000;
+}
+.profile-menu .profile-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    vertical-align: middle;
+    cursor: pointer;
+    margin-right: 2px;
+}
+.profile-menu .dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 40px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    min-width: 160px;
+    padding: 8px 0;
+    z-index: 5000;
+    transition: opacity 0.2s;
+}
+.profile-menu .dropdown.show {
+    display: block;
+    opacity: 1;
+}
+.profile-menu .dropdown li {
+    list-style: none;
+    padding: 0;
+}
+.profile-menu .dropdown a {
+    display: block;
+    padding: 10px 18px;
+    color: #222;
+    text-decoration: none;
+    font-size: 1em;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s, color 0.2s;
+}
+.profile-menu .dropdown a:last-child {
+    border-bottom: none;
+}
+.profile-menu .dropdown a:hover {
+    background: #eaf6ff;
+    color: #0096FF;
+}
+/* ADMIN DASHBOARD CONTROLS */
+.admin-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+.admin-controls label {
+    font-weight: 500;
+    color: #333;
+    margin-right: 6px;
+}
+.status-select {
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: 1px solid #0096FF;
+    background: #eaf6ff;
+    color: #0096FF;
+    font-weight: 600;
+    font-size: 1em;
+    outline: none;
+    transition: border 0.2s;
+}
+.status-select:focus {
+    border: 2px solid #005fa3;
+}
+.accept-btn, .reject-btn {
+    padding: 6px 18px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.accept-btn {
+    background: #2ecc40;
+    color: #fff;
+}
+.accept-btn:hover {
+    background: #27ae38;
+}
+.reject-btn {
+    background: #ff4136;
+    color: #fff;
+}
+.reject-btn:hover {
+    background: #c8231a;
+}
+
+/* Admin dashboard filter controls */
+.admin-filters {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 18px;
+    align-items: center;
+}
+.admin-filters select {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid #0096FF;
+    background: #f4f8fc;
+    color: #0096FF;
+    font-weight: 500;
+    font-size: 1em;
+    outline: none;
+}
+.admin-filters label {
+    font-weight: 500;
+    color: #333;
+}
+.profile-menu {
+    position: relative;
+    cursor: pointer;
+}
+.profile-menu .dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 40px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    min-width: 160px;
+    padding: 8px 0;
+    z-index: 1000;
+}
+.profile-menu .dropdown.show {
+    display: block;
+}
 /* DASHBOARD STYLES */
 .dashboard-container {
     max-width: 950px;
@@ -399,6 +559,14 @@ ul {
     background-color: #004f87;
 }
 
+/* Profile dropdown visibility */
+.profile-menu .dropdown { display: none; position: absolute; right: 10px; top: 40px; background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); min-width: 160px; padding: 8px 0; z-index: 50; }
+.profile-menu .dropdown.show { display: block; }
+.profile-menu { position: relative; cursor: pointer; }
+
+/* ensure photo preview shows nicely */
+.photo-preview.show { display: block !important; }
+
 /* HEADER */
 header {
     background-color: #fff;
@@ -430,9 +598,12 @@ header nav {
 }
 
 header nav ul li {
-    display: inline;
+    display: inline-block; /* allow block children to show */
     margin-left: 20px;
+    vertical-align: middle;
 }
+
+
 
 header nav ul li a {
     color: #0096FF;
@@ -443,15 +614,79 @@ header nav ul li a {
     transition: background-color 0.3s;
 }
 
+
+
 header nav ul li a:hover {
     background-color: #0096FF;
     color: white;
 }
 
+/* ========================= */
+/* PROFILE MENU / DROPDOWN */
+/* ========================= */
+
+.profile-menu {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.profile-menu .profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.profile-menu .profile-icon:hover {
+    transform: scale(1.05);
+}
+
+/* Dropdown */
+.profile-menu .dropdown {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    min-width: 140px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Show dropdown when 'show' class is added to <ul> */
+.profile-menu .dropdown.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Dropdown links */
+.profile-menu .dropdown li a {
+    display: block;
+    padding: 10px 15px;
+    font-weight: bold;
+    color: #0096FF;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+}
+
+.profile-menu .dropdown li a:hover {
+    background-color: #0096FF;
+    color: #fff;
+}
+
+
 /* SHOWCASE / HERO */
 #showcase {
     min-height: 450px;
-    background: url('../img/showcase.jpg') center/cover no-repeat;
+    
     display: flex;
     align-items: center;
     justify-content: center;
@@ -517,10 +752,13 @@ header nav ul li a:hover {
 
 /* FOOTER */
 footer {
+    flex-shrink: 0;
+    margin-top: auto;
     background-color: #333333;
     color: white;
     padding: 20px 0;
     text-align: center;
+    height: 100%;
 }
 
 /* RESPONSIVE */

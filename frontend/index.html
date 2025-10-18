@@ -21,22 +21,32 @@
 
     <!-- HEADER -->
     <header>
-        <div class="container">
-            <div id="branding">
-                <img src="img/logo.png" alt="SnapReport Logo" class="logo">
-                <h1>SnapReport</h1>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="login.html">Login</a></li>
-                    <li><a href="#" id="logoutBtn" style="display:none">Logout</a></li>
-                  
-                </ul>
-            </nav>
+    <div class="container">
+        <div id="branding">
+            <img src="img/logo.png" alt="SnapReport Logo" class="logo">
+            <h1>SnapReport</h1>
         </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="dashboard.html">DASHBOARD</a></li>
+                <li><a href="aboutus.html">ABOUT US</a></li>
+                <li><a href="login.html" id="loginLink">LOGIN</a></li>
+                
+                <li id="profileBtn" class="profile-menu" style="display:none;">
+                    <img src="img/user-icon.png" alt="Profile" class="profile-icon">
+                    <ul class="dropdown">
+                        <li><a href="profile.html">My Profile</a></li>
+                        <li><a href="settings.html">Settings</a></li>
+                        <li><a href="contactus.html">Contact Us</a></li>
+                    </ul>
+                </li>
+                <li id="logoutHeaderBtn" style="display:none;"><button class="btn" style="padding:8px 18px;font-size:1em;">Logout</button></li>
+            </ul>
+        </nav>
+    </div>
     </header>
+
 
     <!-- HERO / SHOWCASE -->
     <section id="showcase">
@@ -59,43 +69,101 @@
             <h3>Track Status</h3>
             <p>Keep an eye on the resolution status of all reported issues in your area.</p>
         </div>
-        <div class="box" data-link="signup.html">
-            <i class='bxr  bx-community'></i> 
-            <h3>Community Impact</h3>
-            <p>Help improve your city by contributing to actionable reports and insights.</p>
+        <div class="box" data-link="map.html">
+            <i class='bxr bx-map'></i>
+            <h3>Live Issue Map</h3>
+            <p>See all reported issues on a real-time map. Track updates and locations instantly as they happen across the city.</p>
         </div>
+    </section>
+
+    <!-- LEADERBOARD SECTION -->
+    <section class="container" style="max-width:950px;margin:40px auto 0 auto;">
+        <h2 style="color:#0096FF;font-size:2rem;margin-bottom:18px;display:flex;align-items:center;gap:10px;font-weight:700;"><i class='bx bx-trophy'></i> Leaderboard of Contributors</h2>
+        <p style="color:#444;margin-bottom:18px;">Top users ranked by valid/verified reports. Select a city to view local leaderboard.</p>
+        <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start;">
+            <div style="flex:1 1 320px;min-width:280px;">
+                <label for="citySelect" style="font-weight:500;color:#333;">City:</label>
+                <select id="citySelect" style="margin-left:8px;padding:6px 14px;border-radius:6px;border:1px solid #0096FF;background:#f4f8fc;color:#0096FF;font-weight:500;font-size:1em;outline:none;"></select>
+                <table id="leaderboardTable" style="width:100%;margin-top:16px;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,150,255,0.07);overflow:hidden;text-align:left;">
+                    <tr><th>Rank</th><th>Name</th><th>City</th><th>Valid Reports</th></tr>
+                </table>
+            </div>
+            <div style="flex:1 1 320px;min-width:280px;max-width:400px;height:260px;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,150,255,0.07);padding:18px;">
+                <canvas id="leaderboardChart" style="width:100%;height:220px;"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEEDBACK BOX -->
+    <section class="container" style="max-width:600px;margin:32px auto 60px auto;">
+        <h3 style="color:#0096FF;font-weight:600;margin-bottom:10px;">Feedback</h3>
+        <form id="feedbackForm" style="display:flex;gap:10px;align-items:center;">
+            <input type="text" id="feedbackInput" placeholder="Share your feedback..." style="flex:1;padding:12px 18px;border-radius:24px;border:1.5px solid #0096FF;background:rgba(255,255,255,0.7);font-size:1.1em;outline:none;box-shadow:0 2px 8px rgba(0,150,255,0.07);">
+            <button type="submit" class="btn" style="border-radius:24px;padding:10px 28px;">Send</button>
+        </form>
+        <p id="feedbackMsg" style="margin-top:8px;font-weight:500;"></p>
     </section>
 
     <!-- FOOTER -->
     <footer>
-        <p>SnapReport &copy; 2025 | Designed by Your Team</p>
+        <p>SnapReport &copy; 2025 | Designed Team Straw Hat</p>
     </footer>
 
-</body>
-<script src="js/main.js"></script>
-</script>
-<script>
-// Show logout button if logged in, hide Sign Up button if present
-document.addEventListener('DOMContentLoaded', function() {
-    var logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        if (localStorage.getItem('isLoggedIn')) {
-            logoutBtn.style.display = 'inline-block';
-        } else {
-            logoutBtn.style.display = 'none';
-        }
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            localStorage.removeItem('isLoggedIn');
-            window.location.href = 'index.html';
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/leaderboard.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Profile menu: clicking the profile icon redirects to profile.html, clicking caret/menu toggles dropdown
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileBtn = document.getElementById('profileBtn');
+            const logoutHeaderBtn = document.getElementById('logoutHeaderBtn');
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (profileBtn) profileBtn.style.display = isLoggedIn ? 'inline-block' : 'none';
+            if (logoutHeaderBtn) logoutHeaderBtn.style.display = isLoggedIn ? 'inline-block' : 'none';
+            if (profileBtn) {
+                const dropdown = profileBtn.querySelector('.dropdown');
+                const profileIcon = profileBtn.querySelector('.profile-icon');
+                if (profileIcon) {
+                    profileIcon.style.pointerEvents = 'auto';
+                    profileIcon.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        window.location.href = 'profile.html';
+                    });
+                }
+                // Toggle dropdown when clicking anywhere else in profileBtn (not the icon)
+                profileBtn.addEventListener('click', function(e) {
+                    if (e.target === profileIcon) return;
+                    e.stopPropagation();
+                    if (dropdown) dropdown.classList.toggle('show');
+                });
+                document.addEventListener('click', function(e) {
+                    if (!profileBtn.contains(e.target)) dropdown.classList.remove('show');
+                });
+            }
+            if (logoutHeaderBtn) {
+                logoutHeaderBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+                    window.location.href = 'index.html';
+                });
+            }
+
+            // Feedback form handler (demo only, no backend)
+            const feedbackForm = document.getElementById('feedbackForm');
+            const feedbackInput = document.getElementById('feedbackInput');
+            const feedbackMsg = document.getElementById('feedbackMsg');
+            if (feedbackForm && feedbackInput && feedbackMsg) {
+                feedbackForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (!feedbackInput.value.trim()) return;
+                    feedbackMsg.textContent = 'Thank you for your feedback!';
+                    feedbackInput.value = '';
+                    setTimeout(() => { feedbackMsg.textContent = ''; }, 3000);
+                });
+            }
         });
-    }
-    // Remove Sign Up nav link if present
-    var nav = document.querySelector('nav ul');
-    if (nav) {
-        var signupLi = Array.from(nav.children).find(li => li.textContent.trim() === 'Sign Up');
-        if (signupLi) nav.removeChild(signupLi);
-    }
-});
-</script>
+        </script>
+</body>
 </html>

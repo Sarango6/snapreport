@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Issue Map - SnapReport</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map { height: 70vh; width: 100%; border-radius: 12px; box-shadow: 0px 6px 18px rgba(0,150,255,0.07); }
+    .map-container { max-width: 950px; margin: 40px auto 30px auto; background: #fff; border-radius: 12px; box-shadow: 0px 6px 18px rgba(0,0,0,0.07); padding: 32px 24px; }
+    .map-title { color: #0096FF; font-size: 2rem; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; font-weight: 700; }
+    .leaflet-control-attribution { font-size: 12px; }
+  </style>
+</head>
+<body>
+  <!-- FLOATING BUBBLE BACKGROUND -->
+  <div class="bubble-bg">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+  <!-- HEADER -->
+  <header>
+    <div class="container">
+      <div id="branding">
+        <img src="img/logo.png" alt="SnapReport Logo" class="logo">
+        <h1>SnapReport</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="map.html" style="background:#0096FF;color:#fff;">Live Map</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class="map-container">
+      <div class="map-title"><i class='bx bx-map'></i> Live Issue Map</div>
+      <p style="margin-bottom:18px;color:#444;">Explore all reported issues in real time. Click on map pins to view details, status, and updates as they happen across the city.</p>
+      <div id="map"></div>
+    </div>
+  </main>
+  <footer>
+    <p>SnapReport &copy; 2025 | Designed Team Straw Hat</p>
+  </footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <script src="js/map.js"></script>
+</body>
+</html>
