@@ -4,25 +4,311 @@
   <meta charset="utf-8">
   <title>SnapReport Admin</title>
   <link rel="stylesheet" href="css/style.css">
-</head>
+  <style>
+    .admin-wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+    .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
+    .kpi{background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06);padding:16px}
+    .kpi h3{margin:0 0 6px 0;font-size:14px;color:#666}
+    .kpi .val{font-size:28px;font-weight:700;color:#0a84ff}
+    .panels{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .panel{background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06);padding:16px}
+    .panel h3{margin:0 0 10px 0;color:#333}
+  .tools{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+  /* Admin page tool buttons (do not override accept/reject) */
+  .tool-btn{background:#0a84ff;color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;box-shadow:0 2px 8px rgba(10,132,255,0.12)}
+  .tool-btn:hover{background:#0a67cc}
+  .tool-btn.secondary{background:#f0f4ff;color:#0a3d91}
+    .muted{color:#666;font-size:14px}
+    .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0}
+    .filters select{padding:8px;border-radius:8px;border:1px solid #ddd}
+    .issues{margin-top:16px}
+    .issue-card{background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06);padding:16px;margin-bottom:12px}
+  .issue-card.blocked{background:#f3f5f7;opacity:0.7}
+    .issue-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .issue-meta{color:#666;font-size:13px;margin:6px 0}
+    .admin-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .admin-controls select,.admin-controls input{padding:8px;border-radius:8px;border:1px solid #ddd}
+  .admin-controls select:disabled{background:#eee;color:#888;cursor:not-allowed}
+    @media(max-width:900px){.panels{grid-template-columns:1fr}}
+  </style>
+  </head>
 <body>
   <header>
-    <h1>Admin Dashboard</h1>
-    <nav><a href="/">Home</a></nav>
+    <div class="container">
+      <div id="branding"><h1>Admin</h1></div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li class="auth-guest"><a href="login.html">Login</a></li>
+          <li class="auth-guest"><a href="signup.html">Signup</a></li>
+          <li class="auth-user"><a href="#" id="logoutLink">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
   </header>
   <main>
-    <section>
-      <canvas id="byCategoryChart" width="600" height="300"></canvas>
-    </section>
-    <section>
-      <canvas id="statusChart" width="600" height="300"></canvas>
-    </section>
-    <section>
-      <button id="exportCsv">Export CSV</button>
-      <button id="exportPdf">Export PDF</button>
-    </section>
+    <div class="admin-wrap">
+      <h2 style="margin:8px 0 6px 0">Reports Dashboard</h2>
+      <p class="muted">Quick overview of reports. Charts are computed locally from current data.</p>
+      <div class="kpis">
+        <div class="kpi"><h3>Total Reports</h3><div class="val" id="kpiTotal">-</div></div>
+        <div class="kpi"><h3>Resolved</h3><div class="val" id="kpiResolved">-</div></div>
+        <div class="kpi"><h3>In Progress</h3><div class="val" id="kpiInProg">-</div></div>
+        <div class="kpi"><h3>Pending</h3><div class="val" id="kpiPending">-</div></div>
+      </div>
+      <div class="tools">
+  <button class="tool-btn" id="exportCsv">Export CSV</button>
+  <button class="tool-btn secondary" id="exportPdf">Export PDF</button>
+      </div>
+      <div class="panel">
+        <h3>Manage Reports</h3>
+        <div class="filters">
+          <label>Department
+            <select id="filterDept">
+              <option value="">All</option>
+              <option value="PWD">PWD</option>
+              <option value="Electricity">Electricity</option>
+              <option value="Water">Water</option>
+              <option value="Traffic">Traffic</option>
+            </select>
+          </label>
+          <label>Issue Type
+            <select id="filterType" disabled>
+              <option value="">All</option>
+            </select>
+          </label>
+        </div>
+        <div id="adminIssuesList" class="issues"></div>
+      </div>
+      <div class="panels">
+        <div class="panel">
+          <h3>By Category</h3>
+          <canvas id="byCategoryChart" height="220"></canvas>
+        </div>
+        <div class="panel">
+          <h3>Monthly Trend</h3>
+          <canvas id="monthlyChart" height="220"></canvas>
+        </div>
+      </div>
+    </div>
   </main>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="js/admin.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script>
+    // Minimal auth toggle for header
+    (function(){
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      document.querySelectorAll('.auth-guest').forEach(el=>el.style.display = isLoggedIn ? 'none' : 'inline-block');
+      document.querySelectorAll('.auth-user').forEach(el=>el.style.display = isLoggedIn ? 'inline-block' : 'none');
+      const logout = document.getElementById('logoutLink');
+      if (logout) logout.addEventListener('click', function(e){
+        e.preventDefault();
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        window.location.href = 'index.html';
+      });
+      // Role guard: only Admin/Authority
+      try {
+        const user = JSON.parse(localStorage.getItem('user')) || {};
+        const role = (user.role||'').toLowerCase();
+        if (role !== 'admin' && role !== 'authority') {
+          window.location.href = 'dashboard.html';
+        }
+      } catch {}
+    })();
+
+    (async function(){
+      try {
+        const resp = await fetch('/api/issues');
+        const data = await resp.json();
+        const issues = Array.isArray(data) ? data : [];
+
+        // KPIs
+        const total = issues.length;
+        const countByStatus = (s)=> issues.filter(i=> (i.status||'Pending') === s).length;
+        const resolved = countByStatus('Resolved');
+        const inProg = countByStatus('In Progress');
+        const pending = countByStatus('Pending');
+        document.getElementById('kpiTotal').textContent = total;
+        document.getElementById('kpiResolved').textContent = resolved;
+        document.getElementById('kpiInProg').textContent = inProg;
+        document.getElementById('kpiPending').textContent = pending;
+
+  // By Category chart
+        const byCat = {};
+        issues.forEach(i=>{ const c = i.category || 'Uncategorized'; byCat[c] = (byCat[c]||0)+1; });
+        const catLabels = Object.keys(byCat);
+        const catValues = Object.values(byCat);
+        const catCtx = document.getElementById('byCategoryChart').getContext('2d');
+        const catChart = new Chart(catCtx, {
+          type: 'bar',
+          data: { labels: catLabels, datasets: [{ label: 'Reports', data: catValues, backgroundColor: '#0a84ff88' }] },
+          options: { responsive: true, plugins: { legend: { display:false } }, scales: { x: { ticks: { maxRotation: 45, minRotation: 0 } }, y: { beginAtZero:true } } }
+        });
+
+        // Monthly trend chart (based on createdAt if available)
+  const byMonth = {};
+  function ym(d){ const dt = d ? new Date(d) : new Date(); return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`; }
+  issues.forEach(i=>{ const k = ym(i.createdAt); byMonth[k] = (byMonth[k]||0)+1; });
+        const months = Object.keys(byMonth).sort();
+        const monthVals = months.map(m=>byMonth[m]);
+        const monthCtx = document.getElementById('monthlyChart').getContext('2d');
+        const monthChart = new Chart(monthCtx, {
+          type: 'line',
+          data: { labels: months, datasets: [{ label: 'Reports per Month', data: monthVals, borderColor: '#0a84ff', backgroundColor: '#0a84ff33', fill:true, tension:0.25 }] },
+          options: { responsive: true }
+        });
+
+  // Export CSV
+        function toCsv(rows){
+          if (!rows.length) return '';
+          const headers = Object.keys(rows[0]);
+          const esc = (v)=> '"'+String(v??'').replace(/"/g,'""')+'"';
+          const lines = [headers.join(',')].concat(rows.map(r=>headers.map(h=>esc(r[h])).join(',')));
+          return lines.join('\n');
+        }
+        document.getElementById('exportCsv').addEventListener('click', ()=>{
+          const rows = issues.map(i=>({
+            id: i._id,
+            title: i.title,
+            category: i.category,
+            status: i.status,
+            location: i.location,
+            address: i.address,
+            createdAt: i.createdAt ? new Date(i.createdAt).toISOString() : ''
+          }));
+          const csv = toCsv(rows);
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = 'reports.csv'; a.click();
+          URL.revokeObjectURL(url);
+        });
+
+        // Export PDF (summary + chart images)
+        document.getElementById('exportPdf').addEventListener('click', async ()=>{
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+          let y = 40;
+          doc.setFontSize(16); doc.text('SnapReport - Reports Summary', 40, y); y+=24;
+          doc.setFontSize(12);
+          doc.text(`Total: ${total}`, 40, y); y+=18;
+          doc.text(`Resolved: ${resolved} | In Progress: ${inProg} | Pending: ${pending}`, 40, y); y+=24;
+          // Add charts
+          try {
+            const img1 = document.getElementById('byCategoryChart').toDataURL('image/png',1.0);
+            doc.text('By Category', 40, y); y+=12;
+            doc.addImage(img1, 'PNG', 40, y, 515, 220); y += 240;
+          } catch {}
+          try {
+            const img2 = document.getElementById('monthlyChart').toDataURL('image/png',1.0);
+            if (y+240>800) { doc.addPage(); y=40; }
+            doc.text('Monthly Trend', 40, y); y+=12;
+            doc.addImage(img2, 'PNG', 40, y, 515, 220); y += 240;
+          } catch {}
+          doc.save('reports-summary.pdf');
+        });
+
+        // Manage Reports list + filters
+        const departmentIssues = {
+          PWD: ['Pothole', 'Broken Footpath', 'Damaged Road', 'Blocked Drain'],
+          Electricity: ['Power Outage', 'Streetlight Not Working', 'Exposed Wires', 'Electric Pole Issue'],
+          Water: ['Water Leakage', 'No Water Supply', 'Contaminated Water', 'Sewage Overflow'],
+          Traffic: ['Signal Not Working', 'Illegal Parking', 'Accident Spot', 'Traffic Jam']
+        };
+        const listEl = document.getElementById('adminIssuesList');
+        const filterDept = document.getElementById('filterDept');
+        const filterType = document.getElementById('filterType');
+        function applyFilters(arr){
+          let f = arr;
+          const dept = filterDept.value;
+          const type = filterType.value;
+          if (dept) f = f.filter(it => it.category && it.category.startsWith(dept));
+          if (type) f = f.filter(it => it.category && it.category.endsWith(type));
+          return f;
+        }
+        function renderList(){
+          const filtered = applyFilters(issues);
+          if (!filtered.length) { listEl.innerHTML = '<p class="muted">No reports.</p>'; return; }
+          listEl.innerHTML = filtered.map(issue => {
+            const loc = issue.address || issue.location || '';
+            const remark = issue.rejectionRemark ? `<div class="muted">Remark: ${issue.rejectionRemark}</div>` : '';
+            const blockedClass = issue.status==='Rejected' ? 'blocked' : '';
+            return `<div class="issue-card ${blockedClass}">
+              <div class="issue-head"><h4 style="margin:0">${issue.title}</h4><span class="muted">${new Date(issue.createdAt).toLocaleString()}</span></div>
+              <div class="issue-meta"><strong>Category:</strong> ${issue.category || '-'} | <strong>Status:</strong> ${issue.status || 'Pending'}</div>
+              <div class="issue-meta"><strong>Location:</strong> ${loc}</div>
+              ${remark}
+              <div class="admin-controls">
+                <label>Status
+                  <select class="status-select" data-id="${issue._id}" ${issue.status==='Rejected'?'disabled':''}>
+                    <option value="Pending" ${issue.status==='Pending'?'selected':''}>Pending</option>
+                    <option value="In Progress" ${issue.status==='In Progress'?'selected':''}>In Progress</option>
+                    <option value="Resolved" ${issue.status==='Resolved'?'selected':''}>Resolved</option>
+                    <option value="Rejected" ${issue.status==='Rejected'?'selected':''}>Rejected</option>
+                  </select>
+                </label>
+                ${issue.status==='Pending' ? `<button class=\"accept-btn\" data-id=\"${issue._id}\">Accept</button>` : ''}
+                ${issue.status==='Pending' ? `<button class=\"reject-btn\" data-id=\"${issue._id}\">Reject</button>` : ''}
+              </div>
+            </div>`;
+          }).join('');
+
+          // Wire controls
+          const token = localStorage.getItem('token');
+          document.querySelectorAll('.status-select').forEach(sel => {
+            sel.addEventListener('change', async function(){
+              const id = this.getAttribute('data-id');
+              const status = this.value;
+              let body = { status };
+              if (status === 'Rejected') {
+                const remark = prompt('Enter rejection remark:');
+                if (remark === null) { this.value = 'Pending'; return; }
+                body.rejectionRemark = remark || '';
+              } else {
+                body.rejectionRemark = '';
+              }
+              await fetch(`/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify(body) });
+              location.reload();
+            });
+          });
+          document.querySelectorAll('.accept-btn').forEach(btn => {
+            btn.addEventListener('click', async function(){
+              const id = this.getAttribute('data-id');
+              const token = localStorage.getItem('token');
+              await fetch(`/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ status: 'In Progress', rejectionRemark: '' }) });
+              location.reload();
+            });
+          });
+          document.querySelectorAll('.reject-btn').forEach(btn => {
+            btn.addEventListener('click', async function(){
+              const id = this.getAttribute('data-id');
+              const token = localStorage.getItem('token');
+              const remark = prompt('Enter rejection remark:');
+              if (remark === null) return;
+              await fetch(`/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ status: 'Rejected', rejectionRemark: remark || '' }) });
+              location.reload();
+            });
+          });
+        }
+        // Filter interactions
+        filterDept.addEventListener('change', ()=>{
+          const dept = filterDept.value;
+          filterType.innerHTML = '<option value="">All</option>';
+          if (departmentIssues[dept]) {
+            departmentIssues[dept].forEach(issue => { const opt = document.createElement('option'); opt.value = issue; opt.textContent = issue; filterType.appendChild(opt); });
+            filterType.disabled = false;
+          } else { filterType.disabled = true; }
+          renderList();
+        });
+        filterType.addEventListener('change', renderList);
+        renderList();
+
+      } catch (e) {
+        console.error('Admin dashboard error', e);
+      }
+    })();
+  </script>
 </body>
 </html>

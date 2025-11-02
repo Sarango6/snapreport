@@ -27,7 +27,10 @@
             <nav>
                 <ul>
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="login.html">Login</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li class="auth-guest"><a href="login.html">Login</a></li>
+                    <li class="auth-guest"><a href="signup.html">Signup</a></li>
+                    <li class="auth-user" style="display:none;"><a href="#" id="logoutLink">Logout</a></li>
                 </ul>
             </nav>
         </div>
@@ -50,11 +53,33 @@
 
     <!-- FOOTER -->
     <footer>
-        <p>SnapReport &copy; 2025 | Designed Team Straw Hat</p>
+        <p>SnapReport &copy; 2025 | Designed Team Strawhat</p>
     </footer>
 
-    <!-- COPY PASSWORD FIX -->
+    <!-- AUTH NAV + COPY PASSWORD FIX -->
     <script>
+        // Auth-based nav toggle
+        (function() {
+            
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            document.querySelectorAll('.auth-guest').forEach(el => {
+                el.style.display = isLoggedIn ? 'none' : 'inline-block';
+            });
+            document.querySelectorAll('.auth-user').forEach(el => {
+                el.style.display = isLoggedIn ? 'inline-block' : 'none';
+            });
+            const logoutLink = document.getElementById('logoutLink');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+                    window.location.href = 'index.html';
+                });
+            }
+        })();
+
         // Password copy fix
         const passwordFields = [document.getElementById('password'), document.getElementById('confirmPassword')];
         passwordFields.forEach(field => {

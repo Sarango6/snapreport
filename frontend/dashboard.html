@@ -33,13 +33,7 @@
                 <ul>
                     <li><a href="index.html">Home</a></li>
                     <li><a href="report.html">Report</a></li>
-                     <li id="profileBtn" class="profile-menu" style="display:none;">
-                    <img src="img/user-icon.png" alt="Profile" class="profile-icon">
-                    <ul class="dropdown">
-                        <li><a href="profile.html">My Profile</a></li>
-                        <li><a href="#" id="logoutoption">Logout</a></li>
-                    </ul>
-                </li>
+                </ul>
             </nav>
         </div>
     </header>
@@ -67,40 +61,10 @@
 
     <!-- FOOTER -->
     <footer>
-        <p>SnapReport &copy; 2025 | Designed by Your Team</p>
+        <p>SnapReport &copy; 2025 | Designed by Team Strawhat</p>
     </footer>
 
     <script src="js/main.js"></script>
 </body>
-
-<script>
-// Show/hide profile & logout buttons based on login state
-document.addEventListener('DOMContentLoaded', function() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const profileBtn = document.getElementById("profileBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const loginLink = Array.from(document.querySelectorAll('nav ul li a'))
-                            .find(a => a.textContent.trim().toUpperCase() === 'LOGIN');
-
-    if (isLoggedIn) {
-        if (profileBtn) profileBtn.style.display = "inline-block";
-        if (logoutBtn) logoutBtn.style.display = "inline-block";
-        if (loginLink) loginLink.style.display = "none";
-    } else {
-        if (profileBtn) profileBtn.style.display = "none";
-        if (logoutBtn) logoutBtn.style.display = "none";
-        if (loginLink) loginLink.style.display = "inline-block";
-    }
-
-    // Logout functionality
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", function(e) {
-            e.preventDefault();
-            localStorage.removeItem("isLoggedIn");
-            window.location.href = "index.html"; // Redirect after logout
-        });
-    }
-});
-</script>
 
 </html>

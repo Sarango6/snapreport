@@ -5,7 +5,7 @@
 
 
 // --- Protect pages (require login) and restrict admin ---
-const protectedPages = ['dashboard.html', 'report.html', 'profile.html', 'settings.html'];
+const protectedPages = ['dashboard.html', 'report.html', 'profile.html', 'settings.html', 'admin.html'];
 const currentPage = window.location.pathname.split('/').pop();
 const user = (() => { try { return JSON.parse(localStorage.getItem('user')); } catch { return null; } })();
 const userRole = user && user.role ? user.role : '';
@@ -13,9 +13,9 @@ if (protectedPages.includes(currentPage)) {
     if (localStorage.getItem('isLoggedIn') !== 'true') {
         window.location.href = 'login.html';
     }
-    // Restrict admin to dashboard only
-    if (userRole === 'Admin' && currentPage !== 'dashboard.html') {
-        window.location.href = 'dashboard.html';
+    // If needed, keep admins away from citizen-only report page
+    if (userRole === 'Admin' && currentPage === 'report.html') {
+        window.location.href = 'admin.html';
     }
 }
 
@@ -28,6 +28,25 @@ document.addEventListener('DOMContentLoaded', () => {
             if (link) window.location.href = link;
         });
     });
+
+        // Sidebar Toggle (does not affect profile dropdown or auth)
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+
+    if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sidebar.classList.toggle('active');
+        document.body.classList.toggle('sidebar-open');
+    });
+    document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+        sidebar.classList.remove('active');
+        document.body.classList.remove('sidebar-open');
+        }
+    });
+    }
+
 
     // --- Profile / login UI ---
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -210,23 +229,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     issuesList.innerHTML = filtered.map(issue => {
                         let imgs = '';
                         if (issue.images && issue.images.length) imgs = issue.images.map(u => `<img src="${u}" style="max-width:160px;border-radius:8px;margin-bottom:8px;margin-right:6px;">`).join('');
-                        const locText = issue.address || issue.location;
+                        const locText = issue.address || issue.location || '';
+                        const status = issue.status || 'Pending';
+                        const statusClass = status === 'Rejected' ? 'rejected' : (status === 'In Progress' ? 'accepted' : '');
                         let adminControls = '';
                         if (userRole === 'Admin' || userRole === 'Authority') {
+                            const selectDisabled = status === 'Rejected' ? 'disabled' : '';
+                            const choiceBtns = status === 'Pending' ? `
+                                <button class="accept-btn" data-id="${issue._id}">Accept</button>
+                                <button class="reject-btn" data-id="${issue._id}">Reject</button>
+                            ` : '';
                             adminControls = `
                             <div class="admin-controls">
                                 <label>Status:
-                                    <select class="status-select" data-id="${issue._id}">
-                                        <option value="Pending" ${issue.status==='Pending'?'selected':''}>Pending</option>
-                                        <option value="In Progress" ${issue.status==='In Progress'?'selected':''}>In Progress</option>
-                                        <option value="Resolved" ${issue.status==='Resolved'?'selected':''}>Resolved</option>
+                                    <select class="status-select" data-id="${issue._id}" ${selectDisabled}>
+                                        <option value="Pending" ${status==='Pending'?'selected':''}>Pending</option>
+                                        <option value="In Progress" ${status==='In Progress'?'selected':''}>In Progress</option>
+                                        <option value="Resolved" ${status==='Resolved'?'selected':''}>Resolved</option>
+                                        <option value="Rejected" ${status==='Rejected'?'selected':''}>Rejected</option>
                                     </select>
                                 </label>
-                                <button class="accept-btn" data-id="${issue._id}">Accept</button>
-                                <button class="reject-btn" data-id="${issue._id}">Reject</button>
+                                ${choiceBtns}
                             </div>`;
                         }
-                        return `<div class="issue-card">${imgs}<h3>${issue.title}</h3><p><strong>Category:</strong> ${issue.category}</p><p><strong>Location:</strong> ${locText}</p><p><strong>Status:</strong> ${issue.status}</p><p>${issue.description}</p>${adminControls}</div>`;
+                        const remarkHtml = (status === 'Rejected' && issue.rejectionRemark) ? `<p class="remark"><strong>Remark:</strong> ${issue.rejectionRemark}</p>` : '';
+                        return `<div class="issue-card ${statusClass}">${imgs}<h3>${issue.title}</h3><p><strong>Category:</strong> ${issue.category || ''}</p><p><strong>Location:</strong> ${locText}</p><p><strong>Status:</strong> ${status}</p><p>${issue.description || ''}</p>${remarkHtml}${adminControls}</div>`;
                     }).join('');
                     // Add event listeners for admin controls
                     if (userRole === 'Admin' || userRole === 'Authority') {
@@ -235,11 +262,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                 const id = this.getAttribute('data-id');
                                 const status = this.value;
                                 const token = localStorage.getItem('token');
-                                await fetch(`/api/issues/${id}`, {
-                                    method: 'PUT',
-                                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token },
-                                    body: JSON.stringify({ status })
-                                });
+                                let body = { status };
+                                if (status === 'Rejected') {
+                                    const remark = prompt('Enter rejection remark:');
+                                    if (remark === null) { this.value = 'Pending'; return; }
+                                    body.rejectionRemark = remark || '';
+                                } else {
+                                    body.rejectionRemark = '';
+                                }
+                                await fetch(`/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify(body) });
                                 location.reload();
                             });
                         });
@@ -247,11 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             btn.addEventListener('click', async function(){
                                 const id = this.getAttribute('data-id');
                                 const token = localStorage.getItem('token');
-                                await fetch(`/api/issues/${id}`, {
-                                    method: 'PUT',
-                                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token },
-                                    body: JSON.stringify({ status: 'In Progress' })
-                                });
+                                await fetch(`/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ status: 'In Progress', rejectionRemark: '' }) });
                                 location.reload();
                             });
                         });
@@ -259,11 +286,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             btn.addEventListener('click', async function(){
                                 const id = this.getAttribute('data-id');
                                 const token = localStorage.getItem('token');
-                                await fetch(`/api/issues/${id}`, {
-                                    method: 'PUT',
-                                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token },
-                                    body: JSON.stringify({ status: 'Rejected' })
-                                });
+                                const remark = prompt('Enter rejection remark:');
+                                if (remark === null) return;
+                                await fetch(`/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ status: 'Rejected', rejectionRemark: remark || '' }) });
                                 location.reload();
                             });
                         });

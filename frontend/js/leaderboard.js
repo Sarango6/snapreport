@@ -6,6 +6,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const leaderboardChart = document.getElementById('leaderboardChart');
     const citySelect = document.getElementById('citySelect');
     let allData = [];
+    const getSuccess = (u) => {
+        // Prefer explicit successful metrics, fall back to verified/valid counts
+        return (
+            u.successfulReports ??
+            u.verifiedReports ??
+            u.completedReports ??
+            u.validReports ??
+            u.reportsCount ??
+            0
+        );
+    };
 
     // Fetch leaderboard data (replace with your API endpoint)
     fetch('/api/users/leaderboard')
@@ -35,10 +46,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const city = citySelect ? citySelect.value : '';
         let users = allData;
         if (city) users = users.filter(u => u.city === city);
-        users = users.slice(0, 10); // Top 10
+        users = users
+            .slice() // work on a copy
+            .sort((a, b) => getSuccess(b) - getSuccess(a))
+            .slice(0, 10); // Top 10
         leaderboardTable.innerHTML = `
-            <tr><th>Rank</th><th>Name</th><th>City</th><th>Valid Reports</th></tr>
-            ${users.map((u, i) => `<tr><td>${i+1}</td><td>${u.name}</td><td>${u.city||'-'}</td><td>${u.reportsCount||0}</td></tr>`).join('')}
+            <tr><th>Rank</th><th>Username</th><th>Successful Reports</th></tr>
+            ${users.map((u, i) => `<tr><td>${i+1}</td><td>${u.name || u.username || '-'}</td><td>${getSuccess(u)}</td></tr>`).join('')}
         `;
     }
 
@@ -47,16 +61,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const city = citySelect ? citySelect.value : '';
         let users = allData;
         if (city) users = users.filter(u => u.city === city);
-        users = users.slice(0, 5); // Top 5 for chart
+        users = users
+            .slice()
+            .sort((a, b) => getSuccess(b) - getSuccess(a))
+            .slice(0, 5); // Top 5 for chart
         const ctx = leaderboardChart.getContext('2d');
         if (window.leaderboardChartInstance) window.leaderboardChartInstance.destroy();
         window.leaderboardChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: users.map(u => u.name),
+                labels: users.map(u => u.name || u.username || '-'),
                 datasets: [{
-                    label: 'Valid Reports',
-                    data: users.map(u => u.reportsCount||0),
+                    label: 'Successful Reports',
+                    data: users.map(u => getSuccess(u)),
                     backgroundColor: '#0096FF',
                 }]
             },

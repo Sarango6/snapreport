@@ -89,59 +89,6 @@ global.io = io;
 const commentsRoutes = require('./routes/comments');
 app.use('/api/comments', commentsRoutes);
 
-// Admin analytics & export endpoints (stubs) - protected by auth + Admin role
-const Issue = require('./models/Issue');
-const { Parser } = require('json2csv');
-const PDFDocument = require('pdfkit');
-const { authenticateToken, authorizeRoles } = require('./middleware/auth');
-
-app.get('/api/admin/analytics', authenticateToken, authorizeRoles('Admin'), async (req, res) => {
-  try {
-    const total = await Issue.countDocuments();
-    const resolved = await Issue.countDocuments({ status: 'Resolved' });
-    const byCategory = await Issue.aggregate([{ $group: { _id: '$category', count: { $sum: 1 } } }]);
-    res.json({ total, resolved, byCategory });
-  } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
-});
-
-app.get('/api/admin/export/csv', authenticateToken, authorizeRoles('Admin'), async (req, res) => {
-  try {
-    const filter = {};
-    if (req.query.status) filter.status = req.query.status;
-    if (req.query.category) filter.category = req.query.category;
-    const issues = await Issue.find(filter).lean();
-    const fields = ['_id','title','description','category','location','address','status','createdAt'];
-    const parser = new Parser({ fields });
-    const csv = parser.parse(issues);
-    res.header('Content-Type', 'text/csv');
-    res.attachment('issues.csv');
-    return res.send(csv);
-  } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
-});
-
-app.get('/api/admin/export/pdf', authenticateToken, authorizeRoles('Admin'), async (req, res) => {
-  try {
-    const filter = {};
-    if (req.query.status) filter.status = req.query.status;
-    if (req.query.category) filter.category = req.query.category;
-    const issues = await Issue.find(filter).lean();
-    const doc = new PDFDocument();
-    res.setHeader('Content-Disposition', 'attachment; filename=issues.pdf');
-    res.setHeader('Content-Type', 'application/pdf');
-    doc.pipe(res);
-    doc.fontSize(18).text('Issues Report', { align: 'center' });
-    doc.moveDown();
-    issues.forEach(iss => {
-      doc.fontSize(12).text(`Title: ${iss.title}`);
-      doc.text(`Category: ${iss.category} | Status: ${iss.status}`);
-      doc.text(`Location: ${iss.address || iss.location}`);
-      doc.text(`Description: ${iss.description}`);
-      doc.moveDown();
-    });
-    doc.end();
-  } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
-});
-
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

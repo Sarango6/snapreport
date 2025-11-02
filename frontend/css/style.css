@@ -17,57 +17,136 @@
     background-color: #004f87;
     color: #fff;
 }
-/* PROFILE MENU DROPDOWN FIX */
-.profile-menu {
-    position: relative;
-    display: inline-block;
-    z-index: 2000;
+/* Header container */
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  position: relative;
+  z-index: 4000;
 }
-.profile-menu .profile-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    vertical-align: middle;
-    cursor: pointer;
-    margin-right: 2px;
+
+/* Sidebar toggle button (left) */
+.menu-btn {
+  background: #0080ff;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
 }
-.profile-menu .dropdown {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 40px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    min-width: 160px;
-    padding: 8px 0;
-    z-index: 5000;
-    transition: opacity 0.2s;
+.menu-btn:hover { background: #004f87; }
+
+/* Branding centered */
+#branding {
+  display: flex;
+  float: left;
+  align-items: center;
 }
-.profile-menu .dropdown.show {
-    display: block;
-    opacity: 1;
+#branding .logo {
+    width: 80px;
+    height: auto;
 }
-.profile-menu .dropdown li {
+#branding h1 {
+    margin: 0;
+    font-size: 2.1em;
+    color: #0096FF;
+    letter-spacing: 1px;
+}
+
+/* Sidebar */
+.sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 250px;
+        height: 100vh;
+        background: #fff;
+        box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+        padding-top: 40px;
+        transition: right 0.3s ease;
+        z-index: 3000;
+}
+.sidebar.active { right: 0; }
+.sidebar ul {
     list-style: none;
     padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
-.profile-menu .dropdown a {
+.sidebar ul li {
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    width: 100%;
+}
+.sidebar ul li a {
     display: block;
-    padding: 10px 18px;
-    color: #222;
-    text-decoration: none;
-    font-size: 1em;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background 0.2s, color 0.2s;
-}
-.profile-menu .dropdown a:last-child {
-    border-bottom: none;
-}
-.profile-menu .dropdown a:hover {
-    background: #eaf6ff;
+    padding: 18px 0;
     color: #0096FF;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 1.15em;
 }
+.sidebar ul li a:hover { background: #0096FF; color: #fff; }
+
+/* Sidebar profile section */
+.sidebar-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 10px 18px 10px;
+    border-bottom: 1px solid #e5e5e5;
+    background: #f9f9f9;
+}
+.sidebar-profile-icon {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 3px solid #0096FF;
+    box-shadow: 0 2px 12px rgba(0,150,255,0.12);
+}
+#sidebarUsername { font-size: 1.1em; font-weight: 600; color: #333; }
+#sidebarEmail {
+    font-size: 1em;
+    color: #666;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    word-break: break-all;
+    text-align: center;
+}
+
+/* Logout button style */
+.logout-btn {
+  width: 80%;
+  color: #0096FF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 0;
+  margin: 15px auto;
+  display: block;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.logout-btn:hover {
+    background: #0096FF;
+    color: #fff;
+}
+
+/* Push page content */
+body.sidebar-open { overflow-x: hidden; margin-right: 250px; transition: margin-left 0.3s; }
+
+
 /* ADMIN DASHBOARD CONTROLS */
 .admin-controls {
     display: flex;
@@ -193,6 +272,9 @@
     position: relative;
     border-left: 6px solid #0096FF;
 }
+.issue-card.accepted { border-left-color: #2ecc40; border: 2px solid #2ecc40; background: #ecfbf0; }
+.issue-card.rejected { border-left-color: #ff4136; border: 2px solid #ff4136; background: #fff1f0; }
+.issue-card .remark { color: #a61b12; font-weight: 600; }
 .issue-card h3 {
     margin: 0 0 6px 0;
     color: #0096FF;
@@ -553,10 +635,14 @@ ul {
     display: inline-block;
     line-height: 45px;
     text-align: center;
+    box-shadow: 0px 2px 8px rgba(0,150,255,0.07);
+    letter-spacing: 0.5px;
+    transition: background 0.2s, box-shadow 0.2s;
 }
 
 .button_1:hover, .btn:hover {
     background-color: #004f87;
+    box-shadow: 0px 4px 16px rgba(0,150,255,0.13);
 }
 
 /* Profile dropdown visibility */
@@ -621,66 +707,6 @@ header nav ul li a:hover {
     color: white;
 }
 
-/* ========================= */
-/* PROFILE MENU / DROPDOWN */
-/* ========================= */
-
-.profile-menu {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-}
-
-.profile-menu .profile-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-.profile-menu .profile-icon:hover {
-    transform: scale(1.05);
-}
-
-/* Dropdown */
-.profile-menu .dropdown {
-    display: none;
-    position: absolute;
-    top: 50px;
-    right: 0;
-    min-width: 140px;
-    background: #fff;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    overflow: hidden;
-    z-index: 1000;
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-/* Show dropdown when 'show' class is added to <ul> */
-.profile-menu .dropdown.show {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Dropdown links */
-.profile-menu .dropdown li a {
-    display: block;
-    padding: 10px 15px;
-    font-weight: bold;
-    color: #0096FF;
-    text-decoration: none;
-    transition: background 0.2s, color 0.2s;
-}
-
-.profile-menu .dropdown li a:hover {
-    background-color: #0096FF;
-    color: #fff;
-}
 
 
 /* SHOWCASE / HERO */
@@ -692,11 +718,11 @@ header nav ul li a:hover {
     justify-content: center;
     text-align: center;
     position: relative;
-    color: #333333;
+    color: #fff;
 }
 
 .showcase-content {
-    background: rgba(255,255,255,0.85);
+    background: linear-gradient(to right, #4a90e2, #50c9c3);
     padding: 40px 20px;
     border-radius: 10px;
 }

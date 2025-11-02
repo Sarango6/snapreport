@@ -8,6 +8,7 @@ const issueSchema = new mongoose.Schema({
     address: { type: String }, // human-readable address
     images: [{ type: String }],       // Array of image URLs
     status: { type: String, default: "Pending" },
+    rejectionRemark: { type: String, default: '' },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     createdAt: { type: Date, default: Date.now }
 });

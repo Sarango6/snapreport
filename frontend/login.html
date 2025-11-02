@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
     <!-- FLOATING BUBBLE BACKGROUND -->
     <div class="bubble-bg">
         <div class="bubble"></div>
@@ -27,7 +26,10 @@
             <nav>
                 <ul>
                     <li><a href="index.html">Home</a></li>
-                    
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li class="auth-guest"><a href="login.html">Login</a></li>
+                    <li class="auth-guest"><a href="signup.html">Signup</a></li>
+                    <li class="auth-user" style="display:none;"><a href="#" id="logoutLink">Logout</a></li>
                 </ul>
             </nav>
         </div>
@@ -49,42 +51,28 @@
 
     <!-- FOOTER -->
     <footer>
-        <p>SnapReport &copy; 2025 | Designed Team Straw Hat</p>
+        <p>SnapReport &copy; 2025 | Designed Team Strawhat</p>
     </footer>
 
     <!-- LOGIN JS -->
     <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Hide/show login button and profile/logout based on login state
-        function updateNavButtons() {
-            const nav = document.querySelector('nav ul');
-            if (!nav) return;
-
-            // Find login <li> by text content
-            const loginLi = Array.from(nav.children).find(li => li.textContent.trim() === 'LOGIN');
-            const profileBtn = document.getElementById("profileBtn");
-            const logoutBtn = document.getElementById("logoutBtn");
-
-            if (localStorage.getItem('isLoggedIn') === 'true') {
-                if (loginLi) loginLi.style.display = 'none';
-                if (profileBtn) profileBtn.style.display = 'inline-block';
-                if (logoutBtn) logoutBtn.style.display = 'inline-block';
-            } else {
-                if (loginLi) loginLi.style.display = 'inline-block';
-                if (profileBtn) profileBtn.style.display = 'none';
-                if (logoutBtn) logoutBtn.style.display = 'none';
-            }
-        }
-
-        updateNavButtons();
-
-        // Logout button functionality
-        const logoutBtn = document.getElementById("logoutBtn");
-        if (logoutBtn) {
-            logoutBtn.addEventListener("click", function() {
-                localStorage.removeItem("isLoggedIn");
-                updateNavButtons();
-                window.location.href = "index.html";
+        // Auth-based nav toggle
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        document.querySelectorAll('.auth-guest').forEach(el => {
+            el.style.display = isLoggedIn ? 'none' : 'inline-block';
+        });
+        document.querySelectorAll('.auth-user').forEach(el => {
+            el.style.display = isLoggedIn ? 'inline-block' : 'none';
+        });
+        const logoutLink = document.getElementById('logoutLink');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('user');
+                localStorage.removeItem('token');
+                window.location.href = 'index.html';
             });
         }
 
@@ -114,12 +102,19 @@
                         loginMessage.style.color = 'green';
                         loginMessage.textContent = "Login successful!";
 
-                        // Update nav buttons
-                        updateNavButtons();
-
                         setTimeout(() => {
-                            window.location.href = "index.html";
-                        }, 1000);
+                            try {
+                                const user = data.user || JSON.parse(localStorage.getItem('user')) || {};
+                                const role = (user.role || '').toLowerCase();
+                                if (role === 'admin' || role === 'authority') {
+                                    window.location.href = 'admin.html';
+                                } else {
+                                    window.location.href = 'index.html';
+                                }
+                            } catch {
+                                window.location.href = 'index.html';
+                            }
+                        }, 600);
                     } else {
                         loginMessage.style.color = 'red';
                         loginMessage.textContent = data.message || "Login failed.";
