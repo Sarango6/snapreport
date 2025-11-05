@@ -7,8 +7,10 @@ const issueSchema = new mongoose.Schema({
     location: { type: String, required: true }, // coordinates
     address: { type: String }, // human-readable address
     images: [{ type: String }],       // Array of image URLs
+    resolutionImages: [{ type: String }], // Admin-uploaded images after resolution
     status: { type: String, default: "Pending" },
     rejectionRemark: { type: String, default: '' },
+    reporterEmail: { type: String },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     createdAt: { type: Date, default: Date.now }
 });

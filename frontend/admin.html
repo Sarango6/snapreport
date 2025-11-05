@@ -29,6 +29,18 @@
     .admin-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
     .admin-controls select,.admin-controls input{padding:8px;border-radius:8px;border:1px solid #ddd}
   .admin-controls select:disabled{background:#eee;color:#888;cursor:not-allowed}
+    /* Thumbnails and fullscreen controls */
+    .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+    .thumb-item{position:relative;display:inline-block}
+    .thumb-item img{max-width:120px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);cursor:pointer}
+  /* removed new-tab overlay link */
+    /* Lightbox */
+    .lightbox{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:5000}
+    .lightbox.show{display:flex}
+    .lightbox .backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.75)}
+    .lightbox .content{position:relative;max-width:92vw;max-height:92vh}
+    .lightbox img{max-width:92vw;max-height:92vh;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.3)}
+    .lightbox .close{position:absolute;right:-10px;top:-10px;background:#fff;border:none;width:34px;height:34px;border-radius:17px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
     @media(max-width:900px){.panels{grid-template-columns:1fr}}
   </style>
   </head>
@@ -77,6 +89,15 @@
               <option value="">All</option>
             </select>
           </label>
+          <label>Status
+            <select id="filterStatus">
+              <option value="">All</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </label>
         </div>
         <div id="adminIssuesList" class="issues"></div>
       </div>
@@ -92,6 +113,14 @@
       </div>
     </div>
   </main>
+  <!-- Image Lightbox -->
+  <div id="imgLightbox" class="lightbox" aria-hidden="true">
+    <div class="backdrop" data-close></div>
+    <div class="content">
+      <button class="close" aria-label="Close" data-close>×</button>
+      <img id="lightboxImg" src="" alt="Full size image" />
+    </div>
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script>
@@ -121,15 +150,17 @@
     (async function(){
       try {
         const resp = await fetch('/api/issues');
-        const data = await resp.json();
-        const issues = Array.isArray(data) ? data : [];
+  const data = await resp.json();
+  const issues = Array.isArray(data) ? data : [];
+  // Sort latest first for list rendering
+  issues.sort((a,b)=> new Date(b.createdAt||0) - new Date(a.createdAt||0));
 
         // KPIs
         const total = issues.length;
         const countByStatus = (s)=> issues.filter(i=> (i.status||'Pending') === s).length;
         const resolved = countByStatus('Resolved');
         const inProg = countByStatus('In Progress');
-        const pending = countByStatus('Pending');
+    const pending = countByStatus('Pending');
         document.getElementById('kpiTotal').textContent = total;
         document.getElementById('kpiResolved').textContent = resolved;
         document.getElementById('kpiInProg').textContent = inProg;
@@ -176,6 +207,7 @@
             status: i.status,
             location: i.location,
             address: i.address,
+            reporterEmail: i.reporterEmail || '',
             createdAt: i.createdAt ? new Date(i.createdAt).toISOString() : ''
           }));
           const csv = toCsv(rows);
@@ -218,14 +250,17 @@
           Traffic: ['Signal Not Working', 'Illegal Parking', 'Accident Spot', 'Traffic Jam']
         };
         const listEl = document.getElementById('adminIssuesList');
-        const filterDept = document.getElementById('filterDept');
-        const filterType = document.getElementById('filterType');
+  const filterDept = document.getElementById('filterDept');
+  const filterType = document.getElementById('filterType');
+  const filterStatus = document.getElementById('filterStatus');
         function applyFilters(arr){
           let f = arr;
           const dept = filterDept.value;
           const type = filterType.value;
+          const stat = filterStatus ? filterStatus.value : '';
           if (dept) f = f.filter(it => it.category && it.category.startsWith(dept));
           if (type) f = f.filter(it => it.category && it.category.endsWith(type));
+          if (stat) f = f.filter(it => (it.status||'Pending') === stat);
           return f;
         }
         function renderList(){
@@ -235,10 +270,23 @@
             const loc = issue.address || issue.location || '';
             const remark = issue.rejectionRemark ? `<div class="muted">Remark: ${issue.rejectionRemark}</div>` : '';
             const blockedClass = issue.status==='Rejected' ? 'blocked' : '';
+            // thumbnails with open in new tab
+            const thumbs = Array.isArray(issue.images) && issue.images.length ? `
+              <div class="thumbs">
+                ${issue.images.map(u => `
+                  <span class="thumb-item">
+                    <img src="${u}" class="admin-thumb" data-full="${u}" alt="thumbnail" />
+                  </span>
+                `).join('')}
+              </div>
+            ` : '';
+            const emailLine = issue.reporterEmail ? `<div class=\"issue-meta\"><strong>Reporter:</strong> ${issue.reporterEmail}</div>` : '';
             return `<div class="issue-card ${blockedClass}">
               <div class="issue-head"><h4 style="margin:0">${issue.title}</h4><span class="muted">${new Date(issue.createdAt).toLocaleString()}</span></div>
               <div class="issue-meta"><strong>Category:</strong> ${issue.category || '-'} | <strong>Status:</strong> ${issue.status || 'Pending'}</div>
               <div class="issue-meta"><strong>Location:</strong> ${loc}</div>
+              ${emailLine}
+              ${thumbs}
               ${remark}
               <div class="admin-controls">
                 <label>Status
@@ -291,6 +339,7 @@
               location.reload();
             });
           });
+          // (Resolution photo upload removed per request)
         }
         // Filter interactions
         filterDept.addEventListener('change', ()=>{
@@ -302,12 +351,30 @@
           } else { filterType.disabled = true; }
           renderList();
         });
-        filterType.addEventListener('change', renderList);
+  filterType.addEventListener('change', renderList);
+  if (filterStatus) filterStatus.addEventListener('change', renderList);
         renderList();
 
       } catch (e) {
         console.error('Admin dashboard error', e);
       }
+    })();
+    // Lightbox logic for admin thumbnails
+    (function(){
+      const lb = document.getElementById('imgLightbox');
+      const lbImg = document.getElementById('lightboxImg');
+      function openLightbox(src){ if (!lb || !lbImg) return; lbImg.src = src; lb.classList.add('show'); lb.setAttribute('aria-hidden','false'); }
+      function closeLightbox(){ if (!lb || !lbImg) return; lb.classList.remove('show'); lb.setAttribute('aria-hidden','true'); lbImg.src = ''; }
+      document.addEventListener('click', (e)=>{
+        const t = e.target;
+        // open when clicking admin thumbnail
+        if (t && t.classList && t.classList.contains('admin-thumb')) { e.preventDefault(); openLightbox(t.getAttribute('data-full') || t.src); }
+        // close if click elements with data-close inside lightbox
+        if (t && (t.hasAttribute && t.hasAttribute('data-close'))) { closeLightbox(); }
+        // close on clicking the backdrop
+        if (t && t.classList && t.classList.contains('backdrop')) { closeLightbox(); }
+      });
+      document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') closeLightbox(); });
     })();
   </script>
 </body>

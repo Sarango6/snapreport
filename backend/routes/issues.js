@@ -28,7 +28,7 @@ router.post('/', upload.single('image'), async (req, res) => {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        // Handle image upload to Cloudinary (single file)
+        // Handle image upload to Cloudinary (single file) with dataURL fallback
         let uploadedUrls = [];
         if (req.file && req.file.buffer) {
             try {
@@ -42,6 +42,10 @@ router.post('/', upload.single('image'), async (req, res) => {
                 uploadedUrls = [resUrl];
             } catch (e) { console.error('Cloudinary upload error', e); }
         }
+        // Fallback: if Cloudinary not configured or failed, accept base64 dataURL from body
+        if ((!uploadedUrls || uploadedUrls.length === 0) && req.body && typeof req.body.imageData === 'string' && req.body.imageData.startsWith('data:image/')) {
+            uploadedUrls = [req.body.imageData];
+        }
 
         const issueData = {
             title: body.title,
@@ -49,10 +53,11 @@ router.post('/', upload.single('image'), async (req, res) => {
             category: body.category,
             location: body.location,
             address: body.address || '',
-            images: uploadedUrls
+            images: uploadedUrls,
+            reporterEmail: body.reporterEmail || ''
         };
 
-        const newIssue = new Issue(issueData);
+    const newIssue = new Issue(issueData);
         const savedIssue = await newIssue.save();
         // Emit new issue for real-time map updates
         if (global.io) global.io.emit('new_issue', savedIssue);
@@ -149,6 +154,54 @@ router.delete('/:id/follow', authenticateToken, async (req, res) => {
         await issue.save();
         res.json({ message: 'Unfollowed', followers: issue.followers });
     } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
+});
+
+// Upload a resolution image for an issue (Admin/Authority)
+router.post('/:id/resolve-image', authenticateToken, authorizeRoles('Admin', 'Authority'), upload.single('image'), async (req, res) => {
+    try {
+        const issue = await Issue.findById(req.params.id);
+        if (!issue) return res.status(404).json({ message: 'Issue not found' });
+
+        let url = '';
+        // Try Cloudinary upload if file provided
+        if (req.file && req.file.buffer) {
+            try {
+                url = await new Promise((resolve, reject) => {
+                    const s = cloudinary.uploader.upload_stream({ folder: 'snapreport/resolutions' }, (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result.secure_url);
+                    });
+                    streamifier.createReadStream(req.file.buffer).pipe(s);
+                });
+            } catch (e) { console.error('Cloudinary upload error (resolution)', e); }
+        }
+        // Fallback to dataURL if provided
+        if (!url && req.body && typeof req.body.imageData === 'string' && req.body.imageData.startsWith('data:image/')) {
+            url = req.body.imageData;
+        }
+        if (!url) return res.status(400).json({ message: 'No image provided' });
+
+        if (!Array.isArray(issue.resolutionImages)) issue.resolutionImages = [];
+        issue.resolutionImages.push(url);
+        const updated = await issue.save();
+
+        // Optional: notify reporter via email
+        try {
+            if (issue.reporterEmail) {
+                await notify.sendEmail(
+                    issue.reporterEmail,
+                    'Your report has a resolution update',
+                    `A resolution photo was added to your report "${issue.title}".`,
+                    `<p>A resolution photo was added to your report <strong>${issue.title}</strong>.</p>`
+                );
+            }
+        } catch (e) { console.error('Notify reporter (resolution image) error', e); }
+
+        return res.json(updated);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 module.exports = router;

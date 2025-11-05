@@ -155,6 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!capturedData) { message.textContent = 'Please capture a live photo before submitting.'; return; }
             const category = `${department} - ${issueType}`;
             const fd = new FormData(); fd.append('title', title); fd.append('description', description); fd.append('category', category); fd.append('location', location); fd.append('address', address);
+            // Attach reporter email for admin visibility
+            try { const me = JSON.parse(localStorage.getItem('user')); if (me && me.email) fd.append('reporterEmail', me.email); } catch {}
             // convert dataURL to Blob and append as 'image'
             function dataURLtoBlob(dataurl) {
                 const arr = dataurl.split(',');
@@ -168,7 +170,13 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const blob = dataURLtoBlob(capturedData);
                 fd.append('image', blob, 'capture.png');
-            } catch (e) { console.error('Failed to append captured image', e); }
+                // Also send dataURL as fallback for environments without Cloudinary
+                fd.append('imageData', capturedData);
+            } catch (e) { 
+                console.error('Failed to append captured image', e); 
+                // If blob conversion fails, at least send the raw dataURL
+                try { if (capturedData) fd.append('imageData', capturedData); } catch {}
+            }
             try {
                 const res = await fetch('/api/issues', { method: 'POST', body: fd });
                 if (res.ok) { message.style.color = 'green'; message.textContent = 'Issue submitted successfully!'; form.reset(); if (issueTypeSelect) issueTypeSelect.disabled = true; if (photoPreview) { photoPreview.src = ''; photoPreview.classList.remove('show'); } if (miniMap) miniMap.innerHTML = ''; if (addressDisplay) addressDisplay.textContent = ''; if (imagePreviews) imagePreviews.innerHTML = ''; selectedAddress = ''; }
@@ -187,17 +195,20 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch {}
     if (issuesList) {
         fetch('/api/issues').then(r => r.json()).then(data => {
-            // Admin filter controls
+            // Sort latest first by createdAt
+            const allIssues = Array.isArray(data) ? [...data].sort((a,b)=> new Date(b.createdAt||0) - new Date(a.createdAt||0)) : [];
+            // Filter controls (visible to all users)
             const adminFilters = document.getElementById('adminFilters');
             const filterDept = document.getElementById('filterDept');
             const filterType = document.getElementById('filterType');
+            const filterStatus = document.getElementById('filterStatus');
             const departmentIssues = {
                 PWD: ['Pothole', 'Broken Footpath', 'Damaged Road', 'Blocked Drain'],
                 Electricity: ['Power Outage', 'Streetlight Not Working', 'Exposed Wires', 'Electric Pole Issue'],
                 Water: ['Water Leakage', 'No Water Supply', 'Contaminated Water', 'Sewage Overflow'],
                 Traffic: ['Signal Not Working', 'Illegal Parking', 'Accident Spot', 'Traffic Jam']
             };
-            if (userRole === 'Admin' && adminFilters && filterDept && filterType) {
+            if (adminFilters && filterDept && filterType) {
                 adminFilters.style.display = 'flex';
                 filterDept.addEventListener('change', function() {
                     const dept = filterDept.value;
@@ -216,19 +227,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderIssues();
                 });
                 filterType.addEventListener('change', renderIssues);
+                if (filterStatus) filterStatus.addEventListener('change', renderIssues);
             }
             function renderIssues() {
                 let filtered = data;
-                if (userRole === 'Admin' && filterDept && filterType) {
+                if (filterDept && filterType) {
                     const dept = filterDept.value;
                     const type = filterType.value;
+                    const stat = filterStatus ? filterStatus.value : '';
                     if (dept) filtered = filtered.filter(issue => issue.category && issue.category.startsWith(dept));
                     if (type) filtered = filtered.filter(issue => issue.category && issue.category.endsWith(type));
+                    if (stat) filtered = filtered.filter(issue => (issue.status||'Pending') === stat);
                 }
                 if (Array.isArray(filtered) && filtered.length) {
                     issuesList.innerHTML = filtered.map(issue => {
                         let imgs = '';
                         if (issue.images && issue.images.length) imgs = issue.images.map(u => `<img src="${u}" style="max-width:160px;border-radius:8px;margin-bottom:8px;margin-right:6px;">`).join('');
+                        let resImgs = '';
+                        if (Array.isArray(issue.resolutionImages) && issue.resolutionImages.length) {
+                            const thumbs = issue.resolutionImages.map(u => `<img src="${u}" style="max-width:160px;border-radius:8px;margin-bottom:8px;margin-right:6px;">`).join('');
+                            resImgs = `<div style="margin-top:8px;"><strong>Resolution Photos:</strong></div><div>${thumbs}</div>`;
+                        }
                         const locText = issue.address || issue.location || '';
                         const status = issue.status || 'Pending';
                         const statusClass = status === 'Rejected' ? 'rejected' : (status === 'In Progress' ? 'accepted' : '');
@@ -253,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>`;
                         }
                         const remarkHtml = (status === 'Rejected' && issue.rejectionRemark) ? `<p class="remark"><strong>Remark:</strong> ${issue.rejectionRemark}</p>` : '';
-                        return `<div class="issue-card ${statusClass}">${imgs}<h3>${issue.title}</h3><p><strong>Category:</strong> ${issue.category || ''}</p><p><strong>Location:</strong> ${locText}</p><p><strong>Status:</strong> ${status}</p><p>${issue.description || ''}</p>${remarkHtml}${adminControls}</div>`;
+                        return `<div class="issue-card ${statusClass}">${imgs}${resImgs}<h3>${issue.title}</h3><p><strong>Category:</strong> ${issue.category || ''}</p><p><strong>Location:</strong> ${locText}</p><p><strong>Status:</strong> ${status}</p><p>${issue.description || ''}</p>${remarkHtml}${adminControls}</div>`;
                     }).join('');
                     // Add event listeners for admin controls
                     if (userRole === 'Admin' || userRole === 'Authority') {
