@@ -104,8 +104,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (video && canvas && captureBtn && photoPreview && imageDataInput) {
         captureBtn.addEventListener('click', async () => {
             if (!cameraStream) {
-                try { cameraStream = await navigator.mediaDevices.getUserMedia({ video: true }); video.srcObject = cameraStream; video.play(); video.classList.add('show'); captureBtn.textContent = 'Capture Photo'; }
-                catch (err) { captureBtn.disabled = true; captureBtn.textContent = 'Camera not available'; return; }
+                const constraintsPreferred = { video: { facingMode: { exact: 'environment' } } };
+                const constraintsFallback = { video: { facingMode: 'environment' } };
+                const constraintsLastResort = { video: true };
+                try {
+                    try {
+                        cameraStream = await navigator.mediaDevices.getUserMedia(constraintsPreferred);
+                    } catch {
+                        try {
+                            cameraStream = await navigator.mediaDevices.getUserMedia(constraintsFallback);
+                        } catch {
+                            cameraStream = await navigator.mediaDevices.getUserMedia(constraintsLastResort);
+                        }
+                    }
+                    // iOS inline video handling
+                    video.setAttribute('playsinline','');
+                    video.setAttribute('webkit-playsinline','');
+                    video.srcObject = cameraStream;
+                    await video.play();
+                    video.classList.add('show');
+                    captureBtn.textContent = 'Capture Photo';
+                } catch (err) {
+                    console.error('Camera access error', err);
+                    captureBtn.disabled = true; captureBtn.textContent = 'Camera not available'; return; }
                 return;
             }
             canvas.width = video.videoWidth; canvas.height = video.videoHeight; canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
