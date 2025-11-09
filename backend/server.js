@@ -45,10 +45,11 @@ mongoose.connect(process.env.MONGO_URI, {
   // Seed admin user if not exists
   const User = require('./models/User');
   const adminEmail = 'admin@example.com';
-  const adminExists = await User.findOne({ email: adminEmail });
-  if (!adminExists) {
-    await User.create({
+  let admin = await User.findOne({ email: adminEmail });
+  if (!admin) {
+    admin = await User.create({
       name: 'admin',
+      username: 'admin',
       email: adminEmail,
       password: 'admin123', // plain password, will be hashed by User model
       role: 'Admin',
@@ -56,6 +57,12 @@ mongoose.connect(process.env.MONGO_URI, {
     });
     console.log('Default admin user created:', adminEmail);
   } else {
+    // Ensure admin has a username after schema change
+    if (!admin.username) {
+      admin.username = 'admin';
+      await admin.save();
+      console.log('Admin user updated with username: admin');
+    }
     console.log('Admin user already exists:', adminEmail);
   }
 })

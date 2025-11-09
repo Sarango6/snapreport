@@ -11,6 +11,7 @@ const issueSchema = new mongoose.Schema({
     status: { type: String, default: "Pending" },
     rejectionRemark: { type: String, default: '' },
     reporterEmail: { type: String },
+    reporterUsername: { type: String },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     createdAt: { type: Date, default: Date.now }
 });

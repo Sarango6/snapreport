@@ -54,7 +54,8 @@ router.post('/', upload.single('image'), async (req, res) => {
             location: body.location,
             address: body.address || '',
             images: uploadedUrls,
-            reporterEmail: body.reporterEmail || ''
+            reporterEmail: body.reporterEmail || '',
+            reporterUsername: body.reporterUsername || ''
         };
 
     const newIssue = new Issue(issueData);

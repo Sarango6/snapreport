@@ -155,8 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!capturedData) { message.textContent = 'Please capture a live photo before submitting.'; return; }
             const category = `${department} - ${issueType}`;
             const fd = new FormData(); fd.append('title', title); fd.append('description', description); fd.append('category', category); fd.append('location', location); fd.append('address', address);
-            // Attach reporter email for admin visibility
-            try { const me = JSON.parse(localStorage.getItem('user')); if (me && me.email) fd.append('reporterEmail', me.email); } catch {}
+            // Attach reporter username for admin visibility (fallback to email if missing)
+            try {
+                const me = JSON.parse(localStorage.getItem('user'));
+                if (me && me.username) fd.append('reporterUsername', me.username);
+                else if (me && me.name) fd.append('reporterUsername', me.name);
+                if (me && me.email) fd.append('reporterEmail', me.email);
+            } catch {}
             // convert dataURL to Blob and append as 'image'
             function dataURLtoBlob(dataurl) {
                 const arr = dataurl.split(',');

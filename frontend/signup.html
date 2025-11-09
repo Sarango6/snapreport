@@ -41,7 +41,7 @@
         <div class="container signup-container">
             <h2>Create Your Account</h2>
             <form id="signupForm">
-                <input type="text" id="name" placeholder="Full Name" required><br><br>
+                <input type="text" id="username" placeholder="Username" required><br><br>
                 <input type="email" id="email" placeholder="Email" required><br><br>
                 <input type="password" id="password" placeholder="Password" required><br><br>
                 <input type="password" id="confirmPassword" placeholder="Confirm Password" required><br><br>
@@ -92,7 +92,7 @@
         const signupForm = document.getElementById('signupForm');
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('name').value.trim();
+            const username = document.getElementById('username').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
@@ -100,11 +100,12 @@
                 alert('Passwords do not match.');
                 return;
             }
+            if (!/^[a-zA-Z0-9_\-]{3,20}$/.test(username)) { alert('Username must be 3-20 chars (letters, numbers, underscore, dash).'); return; }
             try {
-                const res = await fetch('/api/users/signup', {
+                const res = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password })
+                    body: JSON.stringify({ username, email, password })
                 });
                 const data = await res.json();
                 if (res.ok) {

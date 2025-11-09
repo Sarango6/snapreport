@@ -207,7 +207,7 @@
             status: i.status,
             location: i.location,
             address: i.address,
-            reporterEmail: i.reporterEmail || '',
+            reporterUsername: i.reporterUsername || i.reporterEmail || '',
             createdAt: i.createdAt ? new Date(i.createdAt).toISOString() : ''
           }));
           const csv = toCsv(rows);
@@ -280,7 +280,8 @@
                 `).join('')}
               </div>
             ` : '';
-            const emailLine = issue.reporterEmail ? `<div class=\"issue-meta\"><strong>Reporter:</strong> ${issue.reporterEmail}</div>` : '';
+            const reporter = issue.reporterUsername || issue.reporterEmail || '';
+            const emailLine = reporter ? `<div class=\"issue-meta\"><strong>Reporter:</strong> ${reporter}</div>` : '';
             return `<div class="issue-card ${blockedClass}">
               <div class="issue-head"><h4 style="margin:0">${issue.title}</h4><span class="muted">${new Date(issue.createdAt).toLocaleString()}</span></div>
               <div class="issue-meta"><strong>Category:</strong> ${issue.category || '-'} | <strong>Status:</strong> ${issue.status || 'Pending'}</div>
