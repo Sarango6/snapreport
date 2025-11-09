@@ -123,7 +123,9 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="js/config.js"></script>
   <script>
+    const API_BASE = window.API_BASE || 'https://snapreport-z7gk.onrender.com';
     // Minimal auth toggle for header
     (function(){
       const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -149,7 +151,7 @@
 
     (async function(){
       try {
-        const resp = await fetch('/api/issues');
+  const resp = await fetch(API_BASE + '/api/issues');
   const data = await resp.json();
   const issues = Array.isArray(data) ? data : [];
   // Sort latest first for list rendering
@@ -318,7 +320,7 @@
               } else {
                 body.rejectionRemark = '';
               }
-              await fetch(`/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify(body) });
+              await fetch(API_BASE + `/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify(body) });
               location.reload();
             });
           });
@@ -326,7 +328,7 @@
             btn.addEventListener('click', async function(){
               const id = this.getAttribute('data-id');
               const token = localStorage.getItem('token');
-              await fetch(`/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ status: 'In Progress', rejectionRemark: '' }) });
+              await fetch(API_BASE + `/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ status: 'In Progress', rejectionRemark: '' }) });
               location.reload();
             });
           });
@@ -336,7 +338,7 @@
               const token = localStorage.getItem('token');
               const remark = prompt('Enter rejection remark:');
               if (remark === null) return;
-              await fetch(`/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ status: 'Rejected', rejectionRemark: remark || '' }) });
+              await fetch(API_BASE + `/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ status: 'Rejected', rejectionRemark: remark || '' }) });
               location.reload();
             });
           });

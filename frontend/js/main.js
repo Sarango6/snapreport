@@ -183,7 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 try { if (capturedData) fd.append('imageData', capturedData); } catch {}
             }
             try {
-                const res = await fetch('/api/issues', { method: 'POST', body: fd });
+                const base = window.API_BASE || '';
+                const res = await fetch(base + '/api/issues', { method: 'POST', body: fd });
                 if (res.ok) { message.style.color = 'green'; message.textContent = 'Issue submitted successfully!'; form.reset(); if (issueTypeSelect) issueTypeSelect.disabled = true; if (photoPreview) { photoPreview.src = ''; photoPreview.classList.remove('show'); } if (miniMap) miniMap.innerHTML = ''; if (addressDisplay) addressDisplay.textContent = ''; if (imagePreviews) imagePreviews.innerHTML = ''; selectedAddress = ''; }
                 else { const d = await res.json(); message.style.color = 'red'; message.textContent = d.message || 'Error submitting issue.'; }
             } catch (err) { console.error(err); message.style.color = 'red'; message.textContent = 'Server error.'; }
@@ -199,7 +200,9 @@ document.addEventListener('DOMContentLoaded', () => {
         userRole = user && user.role ? user.role : '';
     } catch {}
     if (issuesList) {
-        fetch('/api/issues').then(r => r.json()).then(data => {
+    {
+    const base = window.API_BASE || '';
+    fetch(base + '/api/issues').then(r => r.json()).then(data => {
             // Sort latest first by createdAt
             const allIssues = Array.isArray(data) ? [...data].sort((a,b)=> new Date(b.createdAt||0) - new Date(a.createdAt||0)) : [];
             // Filter controls (visible to all users)
@@ -294,7 +297,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 } else {
                                     body.rejectionRemark = '';
                                 }
-                                await fetch(`/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify(body) });
+                                const base = window.API_BASE || '';
+                                await fetch(base + `/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify(body) });
                                 location.reload();
                             });
                         });
@@ -302,7 +306,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             btn.addEventListener('click', async function(){
                                 const id = this.getAttribute('data-id');
                                 const token = localStorage.getItem('token');
-                                await fetch(`/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ status: 'In Progress', rejectionRemark: '' }) });
+                                const base = window.API_BASE || '';
+                                await fetch(base + `/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ status: 'In Progress', rejectionRemark: '' }) });
                                 location.reload();
                             });
                         });
@@ -312,7 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 const token = localStorage.getItem('token');
                                 const remark = prompt('Enter rejection remark:');
                                 if (remark === null) return;
-                                await fetch(`/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ status: 'Rejected', rejectionRemark: remark || '' }) });
+                                const base = window.API_BASE || '';
+                                await fetch(base + `/api/issues/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ status: 'Rejected', rejectionRemark: remark || '' }) });
                                 location.reload();
                             });
                         });
@@ -320,7 +326,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else issuesList.textContent = 'No issues reported yet.';
             }
             renderIssues();
-        }).catch(err => { console.error(err); issuesList.textContent = 'Failed to load issues.'; });
+    }).catch(err => { console.error(err); issuesList.textContent = 'Failed to load issues.'; });
+    }
     }
 
 });

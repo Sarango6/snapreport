@@ -54,6 +54,7 @@
         <p>SnapReport &copy; 2025 | Designed Team Strawhat</p>
     </footer>
 
+    <script src="js/config.js"></script>
     <!-- LOGIN JS -->
     <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -88,7 +89,8 @@
                     password: document.getElementById('password').value
                 };
                 try {
-                    const res = await fetch('/api/auth/login', {
+                    const base = window.API_BASE || 'https://snapreport-z7gk.onrender.com';
+                    const res = await fetch(base + '/api/auth/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(loginData)

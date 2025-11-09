@@ -56,6 +56,7 @@
         <p>SnapReport &copy; 2025 | Designed Team Strawhat</p>
     </footer>
 
+    <script src="js/config.js"></script>
     <!-- AUTH NAV + COPY PASSWORD FIX -->
     <script>
         // Auth-based nav toggle
@@ -102,7 +103,8 @@
             }
             if (!/^[a-zA-Z0-9_\-]{3,20}$/.test(username)) { alert('Username must be 3-20 chars (letters, numbers, underscore, dash).'); return; }
             try {
-                const res = await fetch('/api/auth/register', {
+                const base = window.API_BASE || 'https://snapreport-z7gk.onrender.com';
+                const res = await fetch(base + '/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, email, password })
