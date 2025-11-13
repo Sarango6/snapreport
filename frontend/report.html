@@ -47,49 +47,51 @@
         <div class="report-container landscape">
             <h2><i class='bx bx-camera'></i> Report an Issue</h2>
             <p class="report-description">Submit potholes, garbage, streetlight issues, and more with just a few clicks.</p>
-            <div class="report-flex">
-                <form id="issueForm">
-                    <input type="text" id="title" placeholder="Title" required>
-                    <textarea id="description" placeholder="Description" required></textarea>
-                    <div class="form-group">
-                        <select id="department" required>
-                            <option value="" disabled selected>Select Department</option>
-                            <option value="PWD">PWD</option>
-                            <option value="Electricity">Electricity</option>
-                            <option value="Water">Water</option>
-                            <option value="Traffic">Traffic</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <select id="issueType" required disabled>
-                            <option value="" disabled selected>Select Issue</option>
-                        </select>
-                    </div>
-                    <input type="hidden" id="location" name="location" required>
-                    <input type="hidden" id="imageData" name="imageData">
-                    <!-- Removed file upload input: only live photo capture allowed -->
-                    <button type="submit" class="btn submit-issue-btn">Submit Issue</button>
-                    <p id="message"></p>
-                </form>
-                                <div class="camera-location-group">
-                                    <div class="photo-block">
-                                        <canvas id="canvas" class="photo-canvas"></canvas>
-                                        <video id="video" class="photo-video" autoplay></video>
-                                        <img id="photoPreview" class="photo-preview" alt="Photo Preview">
-                                        <button type="button" id="captureBtn" class="btn">Take Photo</button>
-                                    </div>
-                                    <div class="location-section">
-                                        <button type="button" id="getLocationBtn" class="btn location-btn" title="Use my location">
-                                            <i class='bx bx-current-location'></i> Use Current Location
-                                        </button>
-                                        <div class="location-info">
-                                            <span id="locationDisplay" class="location-display">No location selected</span>
-                                            <div id="addressDisplay" class="address-display"></div>
-                                            <div id="miniMap" class="mini-map"></div>
-                                        </div>
-                                    </div>
-                                </div>
-            </div>
+               <form id="issueForm">
+                   <input type="text" id="title" placeholder="Title" required>
+                   <textarea id="description" placeholder="Description" required></textarea>
+
+                   <div class="form-group">
+                       <select id="department" required>
+                           <option value="" disabled selected>Select Department</option>
+                           <option value="PWD">PWD</option>
+                           <option value="Electricity">Electricity</option>
+                           <option value="Water">Water</option>
+                           <option value="Traffic">Traffic</option>
+                       </select>
+                   </div>
+                   <div class="form-group">
+                       <select id="issueType" required disabled>
+                           <option value="" disabled selected>Select Issue</option>
+                       </select>
+                   </div>
+
+                   <div class="camera-location-group">
+                       <div class="photo-block">
+                           <canvas id="canvas" class="photo-canvas"></canvas>
+                           <video id="video" class="photo-video" autoplay playsinline webkit-playsinline></video>
+                           <img id="photoPreview" class="photo-preview" alt="Photo Preview">
+                           <button type="button" id="captureBtn" class="btn">Take Photo</button>
+                       </div>
+                   </div>
+
+                   <div class="location-section">
+                       <button type="button" id="getLocationBtn" class="btn location-btn" title="Use my location">
+                           <i class='bx bx-current-location'></i> Use Current Location
+                       </button>
+                       <div class="location-info">
+                           <span id="locationDisplay" class="location-display">No location selected</span>
+                           <div id="addressDisplay" class="address-display"></div>
+                           <div id="miniMap" class="mini-map"></div>
+                       </div>
+                   </div>
+
+                   <input type="hidden" id="location" name="location" required>
+                   <input type="hidden" id="imageData" name="imageData">
+
+                   <button type="submit" class="btn submit-issue-btn">Submit Issue</button>
+                   <p id="message"></p>
+               </form>
             <!-- Real-time Comments Section -->
             
         </div>
@@ -104,6 +106,7 @@
 
     <!-- Leaflet.js for OpenStreetMap -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1jRVv6GQ6k6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q6Q=" crossorigin=""></script>
+    <script src="js/config.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

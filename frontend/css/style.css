@@ -610,6 +610,24 @@ body {
     background-color: #f9f9f9;
 }
 
+/* Center the sequential report form layout */
+.report-container form {
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    text-align: left;
+}
+.report-container .camera-location-group,
+.report-container .location-section {
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.report-container .photo-block,
+.report-container .location-section {
+    align-items: center;
+}
+
 .container {
     width: 85%;
     margin: auto;
